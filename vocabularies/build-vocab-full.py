@@ -32,6 +32,8 @@ elif args.d == "test-and-train-full":
     files_to_parse.append("train_neg_full.txt")
     files_to_parse.append("test_data.txt")
 
+
+# TODO this part should be replaced with data pre-processing. We should get nice and clean vocabulary before cutting it
 words = []
 for file in files_to_parse:
     with open(os.path.join(constants.DATASETS_PATH, file), "r") as f:
