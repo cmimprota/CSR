@@ -22,3 +22,6 @@ cut_vocab = [word for (word, count) in full_vocab if count > args.f]
 
 with open(os.path.join(constants.VOCABULARIES_CUT_PATH, f"cut-vocab-{args.v}-frequency-{args.f}.pkl"), "wb") as outputfile:
     pickle.dump(cut_vocab, outputfile)
+
+with open(os.path.join(constants.VOCABULARIES_CUT_PATH, f"cut-vocab-{args.v}-frequency-{args.f}.txt"), "w") as outputfile:
+    outputfile.write('\n'.join(cut_vocab))
