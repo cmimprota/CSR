@@ -1,5 +1,4 @@
-# INPUT: -ver <version number>
-#        -v <vocabulary filename>
+# INPUT: -v <vocabulary filename>
 #        -d <dataset filename>
 
 # OUTPUT: model representation of the NN
@@ -81,10 +80,13 @@ random.shuffle(all_tweets_as_vectors)
 
 
 model = BoWClassifier(VOCAB_SIZE, NUM_LABELS)
+device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+model.to(device)
 loss_function = nn.NLLLoss()
 optimizer = optim.SGD(model.parameters(), lr=0.1)
 losses = []
 for epoch in range(10):
+    print(F"Running epoch {epoch}\n")
     total_loss = 0
     for tweet_vector, label in all_tweets_as_vectors:
         model.zero_grad()
@@ -96,4 +98,41 @@ for epoch in range(10):
         total_loss += loss.item()
     losses.append(total_loss)
 print(losses)
-joblib.dump(model, f"bow-model-{args.v}-vocab-version-{args.ver}.pkl", compress=9)
+
+
+############################### S A V I N G     B E G I N ###############################
+
+
+# TODO Consider encapsulating it in separate .py as a module and reuse if it is generic enough!
+import getpass
+import csv
+import pandas as pd
+from torchsummary import summary
+
+if not os.path.exists("configuration_log.csv"):
+    with open("configuration_log.csv", "w+") as config_file:
+        w = csv.writer(config_file)
+        w.writerow(["Author", "Version", "Vocabulary", "Dataset"])
+
+username = getpass.getuser()
+df = pd.read_csv("configuration_log.csv")
+all_versions_of_user = df.loc[df["Author"] == username]
+next_version = all_versions_of_user.Version.max() + 1
+if len(all_versions_of_user) == 0:
+    next_version = 1
+
+with open("configuration_log.csv", "a+") as config_file:
+    w = csv.writer(config_file)
+    w.writerow([username, next_version, f"{args.v}", f"{args.d}"])
+
+path_for_results = os.path.join(os.path.curdir, "results", f"{username}-{next_version}")
+os.makedirs(path_for_results)
+
+joblib.dump(model, os.path.join(path_for_results, "trained_model.pkl"), compress=9)
+with open(os.path.join(path_for_results, "model_structure.txt"), "w+") as model_structure_file:
+    # TODO Figure out the best structure
+    # print(model)                    - (linear): Linear(in_features=714, out_features=2, bias=True)
+    # summary(model, (3, VOCAB_SIZE)) - Linear-1                 [-1, 3, 2]           1,430
+    # summary(model, (VOCAB_SIZE, 1)) - THIS IS A MISSMATCH
+    # summary(model, (1, VOCAB_SIZE)) - Linear-1                 [-1, 1, 2]           1,430
+    print(model, file=model_structure_file)

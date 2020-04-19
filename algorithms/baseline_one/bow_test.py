@@ -1,6 +1,4 @@
-# INPUT: -ver <version number>      # TODO CHECK IF I NEED THIS
-#        -d <dataset filename>      # TODO CHECK IF I NEED THIS
-#        -v <vocabulary filename>
+# INPUT: -v <vocabulary filename>
 #        -m <model filename>
 
 # OUTPUT: submission file
@@ -17,9 +15,7 @@ from algorithms.baseline_one.bow_model import BoWClassifier
 import constants
 
 parser = ArgumentParser()
-#parser.add_argument("-d", choices=["train-short", "train-full"])
 parser.add_argument("-v", type=str)
-#parser.add_argument("-ver", type=int)
 parser.add_argument("-m", type=str)
 args = parser.parse_args()
 
@@ -27,12 +23,12 @@ args = parser.parse_args()
 with open(os.path.join(constants.VOCABULARIES_CUT_PATH, f"{args.v}"), "rb") as inputfile:
     vocab = pickle.load(inputfile)
 
-# Maybe can be handled differently, filling the torch.zeros is the challenge
 word_to_index = {}
 for i in range(len(vocab)):
     word_to_index[vocab[i]] = i
 
 
+# No need to parametrize as we have a single test_data file
 with open(os.path.join(constants.DATASETS_PATH, "test_data.txt"), "r") as f:
     tweets = f.readlines()
 
@@ -47,9 +43,10 @@ for tweet in tweets:
             tweet_vector[word_to_index[word]] = count
     tweets_as_vectors.append(tweet_vector.view(1, -1))
 
-model = joblib.load(f"{args.m}")
+path_for_results = os.path.join(os.path.curdir, "results", f"{args.m}")
+model = joblib.load(os.path.join(path_for_results, "trained_model.pkl"))
 
-with open("submission.csv", "w") as f:
+with open(os.path.join(path_for_results, "submission.csv"), "w") as f:
     f.write("Id,Prediction\n")
     i = 0;
     with torch.no_grad():
