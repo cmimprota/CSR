@@ -4,15 +4,13 @@
 
 # copied and adapted from kaggle helper files
 
-raise NotImplementedError
-
 import pickle
 import os
 from argparse import ArgumentParser
 
 parser = ArgumentParser()
-parser.add_argument("input", type=str, help="the .pkl file to unpickle", required=True)
-parser.add_argument("-o", type=str, help="path to the output .txt file")
+parser.add_argument("input", type=str, help="the .pkl file to unpickle")
+parser.add_argument("-o", metavar="output", type=str, help="path to the output .txt file")
 args = parser.parse_args()
 
 file_name, file_ext = os.path.splitext(args.input)
@@ -25,9 +23,14 @@ def main():
         vocab = pickle.load(f)
 
     with open(args.o, 'w') as f:
-        # sort dictionary by value and iterate
-        for k, v in sorted(vocab.items(), key=lambda item: item[1])
-            f.write(str(k) + "\n")
+        if isinstance(vocab, dict):
+            # sort dictionary by value and iterate
+            for k, v in sorted(vocab.items(), key=lambda item: item[1]):
+                f.write(str(k) + "\n")
+        else:
+            assert isinstance(vocab, list)
+            f.write('\n'.join(vocab))
+
 
 
 if __name__ == '__main__':
