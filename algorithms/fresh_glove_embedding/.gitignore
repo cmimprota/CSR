@@ -1,0 +1,5 @@
+# can be very heavy for large vocabularies.
+cooc__*.pkl
+
+# can be very heavy for large datasets.
+embedded-datasets__*/*.npy

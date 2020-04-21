@@ -22,9 +22,9 @@ if args.o is None:
 
 def main():
     with open(args.input) as f:
-        if args.format == "list":
+        if args.format == "list": # list representation l[idx]=word
             vocab = f.read().splitlines()
-        else: # represent it as a dict
+        else: # dict representation {word: idx}
             vocab = dict()
             for idx, line in enumerate(f):
                 vocab[line.strip()] = idx

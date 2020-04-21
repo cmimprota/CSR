@@ -1,15 +1,26 @@
-# copied from https://github.com/dalab/lecture_cil_public/tree/master/exercises/ex6
+# INPUT: -v <vocabulary filename> (use file `cooc-<vocab>.pkl` in the same dir)
+#        -d <dataset filename> (defaults to short dataset)'
+
+# OUTPUT: embeddings-<vocab>.npz
+
+# copied and adapted from https://github.com/dalab/lecture_cil_public/tree/master/exercises/ex6
 
 from scipy.sparse import *
 import numpy as np
 import pickle
 import random
+import os
+from argparse import ArgumentParser
 
+parser = ArgumentParser()
+parser.add_argument("-v", type=str, required=True, help="vocabulary (without path, without extension)")
+parser.add_argument("-d", choices=["train-short", "train-full"], default="train-short")
+args = parser.parse_args()
 
 def main():
 
     print("loading cooccurrence matrix")
-    with open('cooc.pkl', 'rb') as f:
+    with open(os.path.join(os.path.dirname(os.path.abspath(__file__)), f'cooc__{args.d}__{args.v}.pkl'), 'rb') as f:
         cooc = pickle.load(f)
     print("{} nonzero entries".format(cooc.nnz))
 
@@ -37,7 +48,8 @@ def main():
             xs[ix, :] += scale * y
             ys[jy, :] += scale * x
 
-    np.savez('embeddings', xs, ys)
+    curdir = os.path.dirname(os.path.abspath(__file__))
+    np.savez(os.path.join(curdir, f'embeddings__{args.d}__{args.v}.npz'), xs=xs, ys=ys)
 
 
 if __name__ == '__main__':

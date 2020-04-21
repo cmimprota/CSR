@@ -1,31 +1,39 @@
 # INPUT: -v <vocabulary filename>
-#        --full to run on full dataset 'train_pos/neg_full.txt', otherwise run on 'train_pos/neg.txt'
+#        -d <dataset filename> (defaults to short dataset)
 
-# OUTPUT: cooc.pkl
+# OUTPUT: cooc-<vocab>.pkl
+
+# copied and adapted from https://github.com/dalab/lecture_cil_public/tree/master/exercises/ex6
 
 from scipy.sparse import *    # this script needs scipy >= v0.15
 import numpy as np
 import pickle
 import os
 from argparse import ArgumentParser
+
+import sys
+sys.path.insert(1, os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))) ) # little hack. https://stackoverflow.com/questions/4383571/importing-files-from-different-folder
 import constants
 
 parser = ArgumentParser()
-parser.add_argument("-v", type=str)
-# parser.add_argument("--full", type=bool, action="store_false")
-parser.add_argument("--full", type=bool, default=False)
+parser.add_argument("-v", type=str, required=True, help="vocabulary (without path, without extension)")
+parser.add_argument("-d", choices=["train-short", "train-full"], default="train-short")
 args = parser.parse_args()
 
 
 def main():
     # use a vocab without stemming or any modification
-    with open(os.path.join(constants.VOCABULARIES_CUT_PATH, f"{args.v}"), "rb") as inputfile:
+    with open(os.path.join(constants.VOCABULARIES_CUT_PATH, f"{args.v}.pkl"), "rb") as inputfile:
         vocab = pickle.load(inputfile)
+    if isinstance(vocab, list):
+        # convert to dict representation
+        vocab = { vocab[i]: i for i in range(len(vocab)) }
+    assert isinstance(vocab, dict)
     vocab_size = len(vocab)
 
     data, row, col = [], [], []
     counter = 1
-    files_to_parse = ['train_pos_full.txt', 'train_neg_full.txt'] if args.full else ['train_pos.txt', 'train_neg.txt']
+    files_to_parse = ['train_pos_full.txt', 'train_neg_full.txt'] if args.d=="train-full" else ['train_pos.txt', 'train_neg.txt']
     for fn in files_to_parse:
         with open(os.path.join(constants.DATASETS_PATH, fn), "r") as f:
             for line in f:
@@ -43,7 +51,9 @@ def main():
     cooc = coo_matrix((data, (row, col)))
     print("summing duplicates (this can take a while)")
     cooc.sum_duplicates()
-    with open('cooc.pkl', 'wb') as f:
+    
+    curdir = os.path.dirname(os.path.abspath(__file__))
+    with open(os.path.join(curdir, f'cooc__{args.d}__{args.v}.pkl'), 'wb') as f:
         pickle.dump(cooc, f)
 
 
