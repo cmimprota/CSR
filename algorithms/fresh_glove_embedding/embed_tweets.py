@@ -19,7 +19,7 @@ CURRENT_DIR = os.path.dirname(os.path.abspath(__file__)) # to fetch word-embeddi
 
 def main():
     parser = ArgumentParser()
-    parser.add_argument("-v", type=str, required=True, help="vocabulary (without path, without extension) (to choose which embedding to use)")
+    parser.add_argument("-v", type=str, required=True, help="vocabulary (without path, without extension)")
     parser.add_argument("-d", choices=["train-short", "train-full"], default="train-short", help="training dataset (to choose which embedding to use)")
     parser.add_argument("-meth", choices=["mean", "raw"], default="mean")
     parser.add_argument("to_embed", help="tweets to embed", choices=["test_data", "train_neg_full", "train_neg", "train_pos_full", "train_pos"])
