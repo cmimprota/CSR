@@ -1,2 +1,3 @@
-Author,Version,Vocabulary,Dataset
-steva,1,cut-vocab-test-frequency-20.pkl,train-short
+Author,Timestamp,Vocabulary,Dataset
+steva,23.04_13.49.57,cut-vocab-test-frequency-20.pkl,train-short
+steva,23.04_14.39.25,cut-vocab-test-frequency-20.pkl,train-short

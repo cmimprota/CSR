@@ -1,10 +1,11 @@
 from torch import nn
 import torch.nn.functional as F
 
-# Could not import with - in the naming convention
-
 
 class BoWClassifier(nn.Module):
+    """
+    Used to represent the layers our ANN will consist of together with the activation function.
+    """
     def __init__(self, vocab_size, num_labels):
         super(BoWClassifier, self).__init__()
         self.linear = nn.Linear(vocab_size, num_labels)

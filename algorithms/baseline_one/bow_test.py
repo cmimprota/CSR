@@ -1,18 +1,15 @@
-# INPUT: -v <vocabulary filename>
-#        -m <model filename>
+# INPUT: -m <model foldername>
 
 # OUTPUT: submission file
 import os
-import pickle
-from collections import Counter
 from argparse import ArgumentParser
+from collections import Counter
 
-import joblib
 import numpy as np
 import torch
 
-from algorithms.baseline_one.bow_model import BoWClassifier
 import constants
+from algorithms.helpers import load_model, save_submission, load_vocabulary
 
 parser = ArgumentParser()
 parser.add_argument("-v", type=str)
@@ -20,8 +17,7 @@ parser.add_argument("-m", type=str)
 args = parser.parse_args()
 
 
-with open(os.path.join(constants.VOCABULARIES_CUT_PATH, f"{args.v}"), "rb") as inputfile:
-    vocab = pickle.load(inputfile)
+vocab = load_vocabulary(f"{args.m}")
 
 word_to_index = {}
 for i in range(len(vocab)):
@@ -43,15 +39,16 @@ for tweet in tweets:
             tweet_vector[word_to_index[word]] = count
     tweets_as_vectors.append(tweet_vector.view(1, -1))
 
-path_for_results = os.path.join(os.path.curdir, "results", f"{args.m}")
-model = joblib.load(os.path.join(path_for_results, "trained_model.pkl"))
+model = load_model(f"{args.m}")
+label_predictions = []
+with torch.no_grad():
+    for tweet_vector in tweets_as_vectors:
+        log_probs = model(tweet_vector)
+        probabilities = np.exp(log_probs)
+        label_predictions.append(-1 if probabilities[0][0] > 0.5 else 1)
 
-with open(os.path.join(path_for_results, "submission.csv"), "w") as f:
-    f.write("Id,Prediction\n")
-    i = 0;
-    with torch.no_grad():
-        for tweet_vector in tweets_as_vectors:
-            log_probs = model(tweet_vector)
-            probabilities = np.exp(log_probs)
-            i += 1
-            f.write(f"{i},{-1 if probabilities[0][0] > 0.5 else 1}\n")
+
+############################### S A V I N G     B E G I N ###############################
+
+
+save_submission(label_predictions, f"{args.m}")
