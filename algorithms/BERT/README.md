@@ -8,7 +8,7 @@ Script available [here](https://gitlab.ethz.ch/mstevan/cil-spring20-project/-/bl
 # DATASET INSTANTIATION
 **Dataset format**
 * Class [*torchtext.data.TabularDataset*](https://pytorch.org/text/data.html#tabulardataset) only supports three data formats: JSON, TSV, CSV.
-* Class [*torchtext.data.Dataset*](https://pytorch.org/text/data.html#dataset) can only create a dataset from a list.
+* Class [*torchtext.data.Dataset*](https://pytorch.org/text/data.html#dataset) can only create a dataset from a python list.
 * CSV will be used.
 
 **Fields**
