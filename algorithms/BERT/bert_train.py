@@ -29,7 +29,7 @@ tweet_dataset = tweets_pos.append(tweets_neg)
 tweet_dataset = tweet_dataset.sample(frac=1).reset_index(drop=True)
 
 # Save CSV
-tweet_dataset.to_csv(PATH+FILE, index=False)
+tweet_dataset.to_csv(PATH+FILE, index=False, sep=',')
 
 # Use BERT vocabulary
 # https://github.com/bentrevett/pytorch-sentiment-analysis
