@@ -29,3 +29,8 @@ wnl = WordNetLemmatizer()
 for i, _tweet in enumerate(tweets):
     tidy = [wnl.lemmatize(w) for w in _tweet]
     tweets[i] = tidy
+
+# Detokenized
+for i, _tweet in enumerate(tweets):
+    _tweet = ' '.join(_tweet)
+    tweets[i] = _tweet

@@ -1,39 +1,46 @@
+import os
+import sys
 import pandas as pd
-import csv
 
 import torch
 from torchtext import data
 from transformers import BertTokenizer
 
-PATH = "/home/xiaochenzheng/Desktop/cil-spring20-project-data_preprocessing/twitter-datasets/" # Dataset folder
-FILE = "dataset.csv"
+sys.path.append('/home/xiaochenzheng/DLProjects/CIL/cil-spring20-project')
+import constants
 
-# Load the TXT file of tweets
-f = open(PATH + "train_neg.txt")
-tweets_neg = f.readlines()
-f.close()
+dataset_file = 'dataset.csv'
 
-f = open(PATH + "train_pos.txt")
-tweets_pos = f.readlines()
-f.close()
+device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
-# Convert list to DataFrame with 'label' column
-tweets_pos = pd.DataFrame(tweets_pos, columns=['tweets'])
-tweets_pos['label'] = 'pos'
-tweets_neg = pd.DataFrame(tweets_neg, columns=['tweets'])
-tweets_neg['label'] = 'neg'
 
-tweet_dataset = tweets_pos.append(tweets_neg)
+def convert_tweets_to_csv(file_neg, file_pos, output_file=dataset_file):
+    # Load the TXT file of tweets
+    with open(os.path.join(constants.DATASETS_PATH, file_neg), "r") as f:
+        tweets_neg = f.readlines()
 
-# Shuffle
-tweet_dataset = tweet_dataset.sample(frac=1).reset_index(drop=True)
+    with open(os.path.join(constants.DATASETS_PATH, file_pos), "r") as f:
+        tweets_pos = f.readlines()
 
-# Save CSV
-tweet_dataset.to_csv(PATH+FILE, index=False, sep=',')
+    # Convert list to DataFrame with 'label' column
+    tweets_pos = pd.DataFrame(tweets_pos, columns=['tweets'])
+    tweets_pos['label'] = 'pos'
+    tweets_neg = pd.DataFrame(tweets_neg, columns=['tweets'])
+    tweets_neg['label'] = 'neg'
+
+    tweets_dataset = tweets_pos.append(tweets_neg)
+
+    # Shuffle
+    tweets_dataset = tweets_dataset.sample(frac=1).reset_index(drop=True)
+
+    # Save CSV
+    tweets_dataset.to_csv(os.path.join(constants.DATASETS_PATH, output_file), index=False, sep=',')
+
+
+convert_tweets_to_csv('train_neg_full.txt', 'train_pos_full.txt')
 
 # Use BERT vocabulary
 # https://github.com/bentrevett/pytorch-sentiment-analysis
-
 tokenizer = BertTokenizer.from_pretrained('bert-base-uncased')
 max_input_length = tokenizer.max_model_input_sizes['bert-base-uncased']
 
@@ -42,10 +49,12 @@ eos_token_idx = tokenizer.sep_token_id
 pad_token_idx = tokenizer.pad_token_id
 unk_token_idx = tokenizer.unk_token_id
 
+
 def tokenize_and_cut(sentence):
     tokens = tokenizer.tokenize(sentence)
     tokens = tokens[:max_input_length-2]
     return tokens
+
 
 # Define Field
 TEXT = data.Field(batch_first = True,
@@ -62,6 +71,6 @@ LABEL = data.LabelField(dtype = torch.float)
 fields = [('tweet', TEXT), ('label', LABEL)]
 
 # Instantiation
-tweets_train = data.TabularDataset(path=PATH+FILE, format="CSV", fields=fields, skip_header=True)
+tweets_train = data.TabularDataset(path=os.path.join(constants.DATASETS_PATH, dataset_file), format="CSV", fields=fields, skip_header=True)
 
 
