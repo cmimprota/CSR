@@ -65,7 +65,8 @@ LABEL = data.LabelField(dtype = torch.float)
 fields = [('tweet', TEXT), ('label', LABEL)]
 
 # Instantiation
-tweets_train = data.TabularDataset(path=os.path.join(constants.DATASETS_PATH, dataset_file),
-                                   format="CSV", fields=fields, skip_header=True)
+tweets_data = data.TabularDataset(path=os.path.join(constants.DATASETS_PATH, dataset_file),
+                                  format="CSV", fields=fields, skip_header=True)
 
-
+# Validation set
+train_data, val_data = tweets_data.split(split_ratio=0.8)
