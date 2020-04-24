@@ -1,6 +1,9 @@
 import os
 import sys
+import random
 import pandas as pd
+import numpy as np
+from argparse import ArgumentParser
 
 import torch
 from torchtext import data
@@ -9,29 +12,53 @@ from transformers import BertTokenizer
 sys.path.append('/home/xiaochenzheng/DLProjects/CIL/cil-spring20-project')
 import constants
 
-dataset_file = 'dataset.csv'
+SEED = 2333
+
+random.seed(SEED)
+np.random.seed(SEED)
+torch.manual_seed(SEED)
+torch.backends.cudnn.deterministic = True
+
+training_set = ArgumentParser(description='Training options for BERT model')
+training_set.add_argument("--dataset", default="train-short", choices=["train-short", "train-full"], type=str)
+training_set.add_argument("--dataset_file", default='dataset.csv', type=str)
+args = training_set.parse_args()
+
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
 
-def convert_tweets_to_csv(file_neg, file_pos, output_file=dataset_file):
+def convert_tweets_to_csv(file, label):
+    if isinstance(label, int):
+        assert label==0 or label==1, ("Label value: {} should be 1 for positive sentiment, 0 for negative sentiment".format(label))
+    else:
+        raise ValueError('Label must be int, got {}'.format(type(label)))
     # Load the TXT file of tweets
-    with open(os.path.join(constants.DATASETS_PATH, file_neg), "r") as f:
-        tweets_neg = f.readlines()
-    with open(os.path.join(constants.DATASETS_PATH, file_pos), "r") as f:
-        tweets_pos = f.readlines()
+    with open(os.path.join(constants.DATASETS_PATH, file), "r") as f:
+        tweets = f.readlines()
+
     # Convert list to DataFrame with 'label' column
-    tweets_pos = pd.DataFrame(tweets_pos, columns=['tweets'])
-    tweets_pos['label'] = 'pos'
-    tweets_neg = pd.DataFrame(tweets_neg, columns=['tweets'])
-    tweets_neg['label'] = 'neg'
-    tweets_dataset = tweets_pos.append(tweets_neg)
-    # Shuffle
-    tweets_dataset = tweets_dataset.sample(frac=1).reset_index(drop=True)
-    # Save CSV
-    tweets_dataset.to_csv(os.path.join(constants.DATASETS_PATH, output_file), index=False, sep=',')
+    tweets = pd.DataFrame(tweets, columns=['tweets'])
+    tweets['label'] = label
+    return tweets
 
 
-convert_tweets_to_csv('train_neg_full.txt', 'train_pos_full.txt')
+if args.dataset == "train-short":
+    parse_positive = "train_pos.txt"
+    parse_negative = "train_neg.txt"
+else:
+    parse_positive = "train_pos_full.txt"
+    parse_negative = "train_neg_full.txt"
+
+
+tweets_pos = convert_tweets_to_csv(parse_positive, 1)
+tweets_neg = convert_tweets_to_csv(parse_negative, 0)
+tweets_dataset = tweets_pos.append(tweets_neg)
+# Shuffle
+tweets_dataset = tweets_dataset.sample(frac=1).reset_index(drop=True)
+# Save CSV
+tweets_dataset.to_csv(os.path.join(constants.DATASETS_PATH, args.dataset_file), index=False, sep=',')
+print('Finish csv')
+
 
 # Use BERT vocabulary
 # https://github.com/bentrevett/pytorch-sentiment-analysis
@@ -65,7 +92,7 @@ LABEL = data.LabelField(dtype = torch.float)
 fields = [('tweet', TEXT), ('label', LABEL)]
 
 # Instantiation
-tweets_data = data.TabularDataset(path=os.path.join(constants.DATASETS_PATH, dataset_file),
+tweets_data = data.TabularDataset(path=os.path.join(constants.DATASETS_PATH, args.dataset_file),
                                   format="CSV", fields=fields, skip_header=True)
 
 # Validation set

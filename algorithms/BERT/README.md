@@ -14,6 +14,6 @@ Script available [here](https://gitlab.ethz.ch/mstevan/cil-spring20-project/-/bl
 **Fields**
 * Hard to explain, see [here](https://pytorch.org/text/data.html#fields)
 
-**Validation set?**\
-tbd
+**Validation set**\
+* Train set : Validation set = 8 : 2
 
