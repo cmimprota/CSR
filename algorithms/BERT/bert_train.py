@@ -10,7 +10,6 @@ sys.path.append('/home/xiaochenzheng/DLProjects/CIL/cil-spring20-project')
 import constants
 
 dataset_file = 'dataset.csv'
-
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
 
@@ -18,21 +17,16 @@ def convert_tweets_to_csv(file_neg, file_pos, output_file=dataset_file):
     # Load the TXT file of tweets
     with open(os.path.join(constants.DATASETS_PATH, file_neg), "r") as f:
         tweets_neg = f.readlines()
-
     with open(os.path.join(constants.DATASETS_PATH, file_pos), "r") as f:
         tweets_pos = f.readlines()
-
     # Convert list to DataFrame with 'label' column
     tweets_pos = pd.DataFrame(tweets_pos, columns=['tweets'])
     tweets_pos['label'] = 'pos'
     tweets_neg = pd.DataFrame(tweets_neg, columns=['tweets'])
     tweets_neg['label'] = 'neg'
-
     tweets_dataset = tweets_pos.append(tweets_neg)
-
     # Shuffle
     tweets_dataset = tweets_dataset.sample(frac=1).reset_index(drop=True)
-
     # Save CSV
     tweets_dataset.to_csv(os.path.join(constants.DATASETS_PATH, output_file), index=False, sep=',')
 
@@ -71,6 +65,7 @@ LABEL = data.LabelField(dtype = torch.float)
 fields = [('tweet', TEXT), ('label', LABEL)]
 
 # Instantiation
-tweets_train = data.TabularDataset(path=os.path.join(constants.DATASETS_PATH, dataset_file), format="CSV", fields=fields, skip_header=True)
+tweets_train = data.TabularDataset(path=os.path.join(constants.DATASETS_PATH, dataset_file),
+                                   format="CSV", fields=fields, skip_header=True)
 
 
