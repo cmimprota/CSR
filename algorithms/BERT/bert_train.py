@@ -20,8 +20,10 @@ torch.manual_seed(SEED)
 torch.backends.cudnn.deterministic = True
 
 training_set = ArgumentParser(description='Training options for BERT model')
-training_set.add_argument("--dataset", default="train-short", choices=["train-short", "train-full"], type=str)
-training_set.add_argument("--dataset_file", default='dataset.csv', type=str)
+training_set.add_argument("--dataset", default="train-short", choices=["train-short", "train-full"], type=str,
+                          help="Whether use full data or not")
+training_set.add_argument("--dataset_file", default="dataset.csv", type=str,
+                          help="Save txt as csv and its file name")
 args = training_set.parse_args()
 
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
@@ -29,13 +31,12 @@ device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
 def convert_tweets_to_csv(file, label):
     if isinstance(label, int):
-        assert label==0 or label==1, ("Label value: {} should be 1 for positive sentiment, 0 for negative sentiment".format(label))
+        assert label==0 or label==1, ("Label value of {} should be 1 for positive sentiment, 0 for negative sentiment".format(label))
     else:
         raise ValueError('Label must be int, got {}'.format(type(label)))
     # Load the TXT file of tweets
     with open(os.path.join(constants.DATASETS_PATH, file), "r") as f:
         tweets = f.readlines()
-
     # Convert list to DataFrame with 'label' column
     tweets = pd.DataFrame(tweets, columns=['tweets'])
     tweets['label'] = label
