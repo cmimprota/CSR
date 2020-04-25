@@ -31,5 +31,4 @@ class BERTGRU(nn.Module):
 		# hidden = [batch size, hid dim]
 		output = self.out(hidden)
 		# output = [batch size, out dim]
-
 		return output

@@ -99,17 +99,12 @@ print("-"*60)
 print('Finish csv')
 
 
-def adjust_learning_rate(optimizer, gamma, step):
-    """Sets the learning rate to the initial LR decayed by 10 at every
-        specified step
-    # Adapted from PyTorch Imagenet example:
-    # https://github.com/pytorch/examples/blob/master/imagenet/main.py
-    """
-    lr = args.lr * (gamma ** (step))
-    for param_group in optimizer.param_groups:
-        param_group['lr'] = lr
+def tokenize_and_cut(sentence):
+    tokens = tokenizer.tokenize(sentence)
+    tokens = tokens[:max_input_length-2]
+    return tokens
 
-
+# Define Binary accuracy
 # https://github.com/bentrevett/pytorch-sentiment-analysis
 def binary_accuracy(preds, y):
     """
@@ -122,10 +117,17 @@ def binary_accuracy(preds, y):
     return acc
 
 
-def tokenize_and_cut(sentence):
-    tokens = tokenizer.tokenize(sentence)
-    tokens = tokens[:max_input_length-2]
-    return tokens
+# Define lr adjustment strategy
+def adjust_learning_rate(optimizer, gamma, step):
+    """Sets the learning rate to the initial LR decayed by 10 at every
+        specified step
+    # Adapted from PyTorch Imagenet example:
+    # https://github.com/pytorch/examples/blob/master/imagenet/main.py
+    """
+    lr = args.lr * (gamma ** (step))
+    for param_group in optimizer.param_groups:
+        param_group['lr'] = lr
+
 
 # Use BERT vocabulary
 # https://github.com/bentrevett/pytorch-sentiment-analysis
