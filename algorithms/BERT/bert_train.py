@@ -80,14 +80,13 @@ def convert_tweets_to_csv(file, label):
     return tweets
 
 
+# Generating CSV for further instantiation (class torchtext.data.Dataset)
 if args.dataset == "train-short":
     parse_positive = "train_pos.txt"
     parse_negative = "train_neg.txt"
 else:
     parse_positive = "train_pos_full.txt"
     parse_negative = "train_neg_full.txt"
-
-
 tweets_pos = convert_tweets_to_csv(parse_positive, 1)
 tweets_neg = convert_tweets_to_csv(parse_negative, 0)
 tweets_dataset = tweets_pos.append(tweets_neg)
@@ -98,11 +97,17 @@ tweets_dataset.to_csv(os.path.join(constants.DATASETS_PATH, args.dataset_file), 
 print("-"*60)
 print('Finish csv')
 
+# Use BERT vocabulary
+# https://github.com/bentrevett/pytorch-sentiment-analysis
+tokenizer = BertTokenizer.from_pretrained('bert-base-uncased')
+max_input_length = tokenizer.max_model_input_sizes['bert-base-uncased']
+
 
 def tokenize_and_cut(sentence):
     tokens = tokenizer.tokenize(sentence)
     tokens = tokens[:max_input_length-2]
     return tokens
+
 
 # Define Binary accuracy
 # https://github.com/bentrevett/pytorch-sentiment-analysis
@@ -129,45 +134,33 @@ def adjust_learning_rate(optimizer, gamma, step):
         param_group['lr'] = lr
 
 
-# Use BERT vocabulary
-# https://github.com/bentrevett/pytorch-sentiment-analysis
-tokenizer = BertTokenizer.from_pretrained('bert-base-uncased')
-max_input_length = tokenizer.max_model_input_sizes['bert-base-uncased']
-
+# All tokens should be the index of vocabulary
 init_token_idx = tokenizer.cls_token_id
 eos_token_idx = tokenizer.sep_token_id
 pad_token_idx = tokenizer.pad_token_id
 unk_token_idx = tokenizer.unk_token_id
 
 # Define Field
-TEXT = data.Field(batch_first = True,
-                  use_vocab = False,
-                  tokenize = tokenize_and_cut,
-                  preprocessing = tokenizer.convert_tokens_to_ids,
-                  init_token = init_token_idx,
-                  eos_token = eos_token_idx,
-                  pad_token = pad_token_idx,
-                  unk_token = unk_token_idx)
-
-LABEL = data.LabelField(dtype = torch.float)
-
+TEXT = data.Field(batch_first=True,
+                  use_vocab=False,
+                  tokenize=tokenize_and_cut,
+                  preprocessing=tokenizer.convert_tokens_to_ids,
+                  init_token=init_token_idx,
+                  eos_token=eos_token_idx,
+                  pad_token=pad_token_idx,
+                  unk_token=unk_token_idx)
+LABEL = data.LabelField(dtype=torch.float)
 fields = [('tweet', TEXT), ('label', LABEL)]
 
-# Instantiation
+# Dataset and Iterator Instantiation
 tweets_data = data.TabularDataset(path=os.path.join(constants.DATASETS_PATH, args.dataset_file),
                                   format="CSV", fields=fields, skip_header=True)
 train_data, valid_data = tweets_data.split(split_ratio=0.8)
-print("-"*60)
-print("There are {} training examples and {} validation examples.".format(len(train_data), len(valid_data)))
-
+print("-"*60+"\nThere are {} training examples and {} validation examples.".format(len(train_data), len(valid_data)))
 LABEL.build_vocab(train_data)
-print(LABEL.vocab.stoi)
-
-# Iterator
+print("-"*60+"\nThe vocab of labels is {}".format(LABEL.vocab.stoi))
 train_iterator, valid_iterator = data.BucketIterator.splits((train_data, valid_data),
                                                             batch_size=args.batch_size, device=device)
-print("-"*60)
-print(train_iterator)
 
 # Model Instantiation
 bert = BertModel.from_pretrained('bert-base-uncased')
