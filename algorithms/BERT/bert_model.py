@@ -8,8 +8,8 @@ class BERTGRU(nn.Module):
 		super(BERTGRU, self).__init__()
 		self.bert = bert
 		embedding_dim = bert.config.to_dict()['hidden_size']
-		self.rnn = nn.GRU(embedding_dim,
-						  hidden_dim,
+		self.rnn = nn.GRU(input_size=embedding_dim,
+						  hidden_size=hidden_dim,
 						  num_layers=n_layers,
 						  bidirectional=bidirectional,
 						  batch_first=True,
