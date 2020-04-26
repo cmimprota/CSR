@@ -61,10 +61,10 @@ training_set.add_argument("--num_layers", default=2, type=int,
 training_set.add_argument("--bidirectional", default=True, type=str2bool,
                           help="Whether is a bidirectional model")
 training_set.add_argument("--dropout_ratio", default=0.25, type=float)
-training_set.add_argument("--num_epochs", default=5, type=int)
+training_set.add_argument("--num_epochs", default=50, type=int)
 training_set.add_argument("--lr", default=0.01, type=float,
                           help="initial learning rate")
-training_set.add_argument("--patience", default=10, type=int,
+training_set.add_argument("--patience", default=5, type=int,
                           help="patience for early stopping")
 training_set.add_argument("--gamma", default=0.1, type=float,
                           help='Gamma update for optimizer')
@@ -274,14 +274,15 @@ def train_process():
                     pbar.update()
 
         valid_epoch_loss_list[epoch] = valid_loss
-
-        print('-'*60+'\nthe learning rate is {}'.format(args.lr))
+        print('-'*60+'\nEpoch: {}'.format(epoch+1))
+        # print('the learning rate is {}'.format(args.lr))
         print('the average loss of validation data is {}'.format(valid_loss))
 
         if (best_valid_loss - valid_epoch_loss_list[epoch]) > 0.000001: # valid_epoch_loss_list[epoch + 1] < best_valid_loss
 
             best_valid_loss = valid_epoch_loss_list[epoch]
             best_epoch = epoch + 1
+            torch.save(model.state_dict(), "weights/"+str(best_epoch)+"_model.pt")
             print('Saving model at epoch: {}'.format(best_epoch))  # Save periodically
             patience_count = 0
         else:
