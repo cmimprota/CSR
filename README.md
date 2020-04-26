@@ -66,3 +66,49 @@ vocabularies folder:
 - contains 3 subfolders: full, cuttings and cut
 - contains a script that should be used only once for generating full vocabularies from twitter datasets and storing them in full subfolder
 - contains cuttings subfolder which will do transformation and cut full vocabularies and store them in cut subfolder
+
+
+## LEONHARD TUTORIAL
+
+#### Setup environment
+- Installing a Python package locally, using distutils
+```shell script
+command mkdir $HOME/python
+command cd $HOME/python
+command mkdir -p lib64/python3.7/site-packages
+command echo "export PYTHONPATH=$HOME/python/lib64/python3.7/site-packages:$PYTHONPATH" >> ~/.bash_profile
+command source .bash_profile
+command module load gcc/6.3.0 python_gpu/3.7.4
+```
+- Create virtualenv
+```shell script
+command pip3 install --user virtualenv #install a package locally using pip
+command python3 --version # check python3 version
+command virtualenv --system-site-packages -p python3 ./nlp
+command source ./nlp/bin/activate
+command pip install --upgrade pip # do not need install --user any more
+command pip install torch==1.5.0+cu101 torchvision==0.6.0+cu101 -f https://download.pytorch.org/whl/torch_stable.html
+command pip list
+command deactivate
+```
+
+#### Prepare for training
+- Load necessary module every time login to Leonhard
+```shell script
+command module load module load gcc/6.3.0 python_gpu/3.7.4 # Python 3.7.4, TensorFlow 2.0.0, PyTorch 1.5.0 CUDA 10.1.243, cuDNN 7.6.4
+command module load hdf5/1.10.1
+```
+- Activate virtualenv
+```shell script
+command source ./nlp/bin/activate
+```
+
+- Submit a GPU job
+```shell script
+command bsub -n 4 -W 4:00 -R "rusage[mem=2048, ngpus_excl_p=1]" python bert_train.py 
+```
+
+- Monitoring
+```shell script
+command watch -n 0.1 bpeek
+```
