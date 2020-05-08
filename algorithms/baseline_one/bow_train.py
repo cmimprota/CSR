@@ -125,7 +125,7 @@ for epoch in range(20):
         model.zero_grad()
         log_probabilities = model(bow_vector)
         # Do not forget to convert label into a vector otherwise it will not work!!!
-        loss = loss_function(log_probabilities, torch.LongTensor([label], device=DEVICE))
+        loss = loss_function(log_probabilities, torch.tensor([label], device=DEVICE))
         loss.backward()
         optimizer.step()
         total_loss += loss.item()
