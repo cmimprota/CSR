@@ -16,7 +16,7 @@ import joblib
 from sklearn.preprocessing import StandardScaler, PolynomialFeatures
 from sklearn.feature_selection import VarianceThreshold, SelectPercentile, f_classif
 from sklearn.model_selection import train_test_split, cross_val_score, GridSearchCV
-from sklearn.metrics import accuracy_score, confusion_matrix
+from sklearn.metrics import accuracy_score, confusion_matrix, balanced_accuracy_score
 from sklearn.svm import LinearSVC, SVC
 from sklearn.pipeline import Pipeline
 
@@ -67,7 +67,7 @@ print("definining the transformers and classifier...")
 # feature selection at pre-processing https://scikit-learn.org/stable/modules/feature_selection.html
 
 # binary classifier estimator https://scikit-learn.org/stable/modules/svm.html#classification
-clf = LinearSVC() # the rest of the params is grid-searched
+clf = LinearSVC(max_iter=4000) # the rest of the params is grid-searched
 
 # optional further step: use ensemble methods https://scikit-learn.org/stable/modules/ensemble.html#bagging
 
@@ -86,7 +86,8 @@ print("defined pipeline `pipe`.")
 # ----------------------------
 # CV-train
 param_grid = {
-    'feat_select__percentile': (100,), # (80, 90, 100,),
+    # 'feat_select__percentile': (90,), # (80, 90, 100,),
+    # 'classification__C': (1,), 
     'classification__C': (0.1, 0.4, 1), 
     # 'classification__coef0': (0, 1.0),
     # 'classification__degree': (2, 3, 4), # only for kernel='poly'
@@ -101,7 +102,7 @@ print("\ntrained pipe into `grid_search`.")
 
 # save model
 PATH_FOR_TRAINED_MODEL = os.curdir # TODO: find somewhere to put it
-joblib.dump(gridsearch, os.path.join(PATH_FOR_TRAINED_MODEL, "trained_model.pkl"))
+joblib.dump(grid_search, os.path.join(PATH_FOR_TRAINED_MODEL, "trained_model.pkl"))
 print("saved model to " + os.path.join(PATH_FOR_TRAINED_MODEL, "trained_model.pkl"))
 
 # show results

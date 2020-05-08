@@ -28,8 +28,7 @@ def save_model(trained_model, vocabulary, dataset):
             w.writerow(["Author", "Timestamp", "Vocabulary", "Dataset"])
 
     username = getpass.getuser()
-    datetime_now = datetime.now()
-    timestamp = datetime_now.strftime("%d.%m_%H.%M.%S")
+    timestamp = datetime.now().strftime("%d.%m_%H.%M.%S")
 
     with open("configuration_log.csv", "a+") as config_file:
         w = csv.writer(config_file)
@@ -86,7 +85,5 @@ def save_submission(label_predictions, model_folder):
     path_for_results = os.path.join(os.path.curdir, "results", model_folder)
     with open(os.path.join(path_for_results, "submission.csv"), "w") as f:
         f.write("Id,Prediction\n")
-        i = 0;
-        for label in label_predictions:
-                i += 1
-                f.write(f"{i},{label}\n")
+        for i, label in enumerate(label_predictions, start=1):
+            f.write(f"{i},{label}\n")

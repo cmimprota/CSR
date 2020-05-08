@@ -13,8 +13,13 @@ import os
 from argparse import ArgumentParser
 
 parser = ArgumentParser()
-parser.add_argument("-v", type=str, required=True, help="vocabulary (without path, without extension)")
-parser.add_argument("-d", choices=["train-short", "train-full"], default="train-short")
+parser.add_argument("-v", "--vocab", type=str, required=True, help="vocabulary (without path, without extension)")
+parser.add_argument("-d", "--dataset", choices=["train-short", "train-full"], default="train-short")
+parser.add_argument("--nmax", type=int, default=100)
+parser.add_argument("--embedding_dim", type=int, default=20)
+parser.add_argument("--eta", type=float, default=0.001)
+parser.add_argument("--alpha", type=float, default=0.75)
+parser.add_argument("--epochs", type=int, default=20)
 args = parser.parse_args()
 
 def main():
@@ -29,12 +34,12 @@ def main():
 
     print("initializing embeddings");
     print("cooc shape 0: ", cooc.shape[0], "cooc shape 1: ", cooc.shape[1])
-    embedding_dim = 20
+    embedding_dim = args.embedding_dim
     xs = np.random.normal(size=(cooc.shape[0], embedding_dim))
     ys = np.random.normal(size=(cooc.shape[1], embedding_dim))
 
-    eta = 0.001
-    alpha = 3 / 4
+    eta = args.eta
+    alpha = args.alpha
 
     epochs = 20
 
