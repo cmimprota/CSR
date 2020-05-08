@@ -111,7 +111,7 @@ class VocabBuilder: # (skl.base.TransformerMixin):
     """Absract class for (cut) vocabulary building"""
     def __init__(self):
         super().__init__()
-    def build_vocab(self, tweets, interm_dir):
+    def build_vocab(self, tweets, interm_dir=None):
         """
         Args:
             tweets (list of string): the (preprocessed) tweets to use to build the vocabulary

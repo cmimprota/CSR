@@ -12,8 +12,8 @@ class NoCutVB(VocabBuilder):
     def build_vocab(self, tweets, interm_dir):
         # get the full occurrence dictionary
         # try loading it from interm_dir
-        path_to_occ_dict = os.path.join(interm_dir, "full_occurrence_dict.pkl")
-        if os.path.exists(path_to_occ_dict):
+        path_to_occ_dict = interm_dir and os.path.join(interm_dir, "full_occurrence_dict.pkl")
+        if interm_dir is not None and os.path.exists(path_to_occ_dict):
             with open(path_to_occ_dict, "rb") as f:
                 occ_dict = pickle.load(f)
         else:
