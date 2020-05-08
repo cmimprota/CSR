@@ -60,7 +60,7 @@ def create_TweetEmbedder(vocab_fn, dataset_fn, method):
     return TweetEmbedder(vocab, xs, ys, method)
 
 
-class TweetEmbedder:
+class TweetEmbedder: # (skl.base.TransformerMixin):
     """Embed tweets into a vector using a word-embedding
     Attributes:
         word_to_index (dict {str: int}): inverse mapping of vocab
