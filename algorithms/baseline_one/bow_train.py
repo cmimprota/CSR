@@ -11,6 +11,7 @@ from collections import Counter
 import torch
 import torch.nn as nn
 import torch.optim as optim
+from torch.cuda import device
 
 import constants
 from algorithms.baseline_one.bow_model import BoWClassifier
@@ -42,6 +43,9 @@ WORD_TO_INDEX = {}
 for i in range(len(vocab)):
     WORD_TO_INDEX[vocab[i]] = i
 
+# Same device needs to be used when instantiating tensors as for model. Exception thrown otherwise
+DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+
 
 def encode_tweets_as_bow_vectors(file, label):
     """
@@ -61,7 +65,7 @@ def encode_tweets_as_bow_vectors(file, label):
         # TODO do the same pre-processing as in build-vocab-full (call it from separate script.py)
         words = tweet.split()
         occurrences_of_words = list(Counter(words).items())
-        bow_vector = torch.zeros(len(vocab))
+        bow_vector = torch.zeros(len(vocab), device=DEVICE)
         # Do not iterate over every entry in vocab in order to set that position to 0 or occurrences.
         # It will consume way to much processing time, that is why we have dictionary of words in vocab and their index
         # This way we can only iterate over sentences in tweet saving enormous processing time (factor of more than 10)
@@ -96,8 +100,7 @@ random.shuffle(all_tweets_as_bow_vectors)
 
 # Read the model description in bow_model.py
 model = BoWClassifier(VOCAB_SIZE, NUM_LABELS)
-device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-model.to(device)
+model.to(DEVICE)
 
 # BoWClassifier uses softmax on output - we have vector of log probabilities(one element for each class - in our case 2)
 
@@ -122,7 +125,7 @@ for epoch in range(20):
         model.zero_grad()
         log_probabilities = model(bow_vector)
         # Do not forget to convert label into a vector otherwise it will not work!!!
-        loss = loss_function(log_probabilities, torch.LongTensor([label]))
+        loss = loss_function(log_probabilities, torch.LongTensor([label], device=DEVICE))
         loss.backward()
         optimizer.step()
         total_loss += loss.item()
