@@ -23,7 +23,7 @@ from sklearn.pipeline import Pipeline
 import sys
 sys.path.insert(1, os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))) ) # little hack. https://stackoverflow.com/questions/4383571/importing-files-from-different-folder
 import constants
-from algorithms.fresh_glove_embedding.embed_tweets import EmbedTweets, create_EmbedTweets
+from algorithms.fresh_glove_embedding.tweet_embedder import TweetEmbedder, create_TweetEmbedder
 
 parser = ArgumentParser()
 parser.add_argument("-v", type=str, required=True, help="vocabulary (without path, without extension)")

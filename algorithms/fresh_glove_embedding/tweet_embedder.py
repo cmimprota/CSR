@@ -21,7 +21,7 @@ def main():
     parser = ArgumentParser()
     parser.add_argument("-v", type=str, required=True, help="vocabulary (without path, without extension)")
     parser.add_argument("-d", choices=["train-short", "train-full"], default="train-short", help="training dataset (to choose which embedding to use)")
-    parser.add_argument("-meth", choices=["mean", "raw"], default="mean")
+    parser.add_argument("--meth", choices=["mean", "raw"], default="mean")
     parser.add_argument("to_embed", help="tweets to embed", choices=["test_data", "train_neg_full", "train_neg", "train_pos_full", "train_pos"])
     args = parser.parse_args()
 
@@ -32,19 +32,19 @@ def main():
     with open(os.path.join(constants.DATASETS_PATH, f"{args.to_embed}.txt")) as f:
         tweets = f.readlines()
 
-    ET = create_EmbedTweets(vocab_fn=args.v, dataset_fn=args.d, method=args.meth)
+    TE = create_TweetEmbedder(vocab_fn=args.v, dataset_fn=args.d, method=args.meth)
     
-    # dummy_embedd_tw = ET.embed(["hello", "world"]) # to get the shape of the output
+    # dummy_embedd_tw = TE.embed(["hello", "world"]) # to get the shape of the output
     # res = np.empty((len(tweets), *dummy_embedd_tw.shape))
     # for tweetnb, tweet in enumerate(tweets):
-    #     res[tweetnb] = ET.embed(tweet)
-    res = np.array([ET.embed(tweet) for tweet in tweets])
+    #     res[tweetnb] = TE.embed(tweet)
+    res = np.array([TE.embed(tweet) for tweet in tweets])
 
     np.save(os.path.join(outdir, f"embedded_{args.to_embed}.npy"), res)
 
 
-def create_EmbedTweets(vocab_fn, dataset_fn, method):
-    """A kind of "factory" function to create EmbedTweets from vocab and (training) dataset filenames
+def create_TweetEmbedder(vocab_fn, dataset_fn, method):
+    """A kind of "factory" function to create TweetEmbedder from vocab and (training) dataset filenames
     Args: 
         vocab_fn (string): vocabulary filename (without path, without extension)
         dataset_fn ("train-short" or "train-full"): training dataset
@@ -57,10 +57,10 @@ def create_EmbedTweets(vocab_fn, dataset_fn, method):
     with np.load(os.path.join(CURRENT_DIR,f"embeddings__{dataset_fn}__{vocab_fn}.npz")) as data:
         xs = data['xs']
         ys = data['ys']
-    return EmbedTweets(vocab, xs, ys, method)
+    return TweetEmbedder(vocab, xs, ys, method)
 
 
-class EmbedTweets:
+class TweetEmbedder:
     """Embed tweets into a vector using a word-embedding
     Attributes:
         word_to_index (dict {str: int}): inverse mapping of vocab

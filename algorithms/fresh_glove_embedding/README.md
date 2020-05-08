@@ -22,13 +22,13 @@ with np.load(f'embeddings__{textdata}__{vocab}.npz') as data:
 ### making tweet-embeddings
 One way to use the embeddings for tweets classification is to also embed each tweet, i.e make a tweet-embedding based on the word-embedding. After that, can use any classical model for vector classification (linear or not, actually). There are multiple methods to make such an embedding.
 
-The script `embed_tweets.py` allows to
+The script `tweet_embedder.py` allows to
 - embed all the tweets from a twitter-dataset, into file `embedded-datasets__<trainingdata>__<vocab>__<method>/embedded_<textdata>.npy` which can then be loaded by
 ```python
 embedded_tweets = np.load(f'embedded_{textdata}')
 # embedded_tweets[k,:] is the embedding of the k-th tweet
 ```
-- through the exported class `EmbedTweets`, a tweet from the test dataset can be embedded by calling `ET.embed(tweet)`
+- through the exported class `TweetEmbedder`, a tweet from the test dataset can be embedded by calling `TE.embed(tweet)`
 
 
 ### extensions/TODOs
