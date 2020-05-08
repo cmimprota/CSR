@@ -70,45 +70,57 @@ vocabularies folder:
 
 ## LEONHARD TUTORIAL
 
-#### Setup environment
+#### Login into Leonhard environment (**Every time you want to do something on Leonhard**)
+Every student should have his/her personal home directory on leonhard by default.
+This means that you can do whatever you want, independet of others!
+1.  VPN to ETH network
+2.  ssh nethzusername@login.leonhard.ethz.ch.
+3.  Input your nethz password when prompted
+4.  Type Yes to agree to the terms
+
+Congratulations, you are there!
+
+#### Setup environment (**Do this only once, before training for the first time**)
 - Installing a Python package locally, using distutils
 ```shell script
-command mkdir $HOME/python
-command cd $HOME/python
-command mkdir -p lib64/python3.7/site-packages
-command echo "export PYTHONPATH=$HOME/python/lib64/python3.7/site-packages:$PYTHONPATH" >> ~/.bash_profile
-command source .bash_profile
-command module load gcc/6.3.0 python_gpu/3.7.4
+mkdir $HOME/python
+cd $HOME/python
+mkdir -p lib64/python3.7/site-packages
+echo "export PYTHONPATH=$HOME/python/lib64/python3.7/site-packages:$PYTHONPATH" >> ~/.bash_profile
+source ~/.bash_profile
+module load gcc/6.3.0 python_gpu/3.7.4
 ```
 - Create virtualenv
 ```shell script
-command pip3 install --user virtualenv #install a package locally using pip
-command python3 --version # check python3 version
-command virtualenv --system-site-packages -p python3 ./nlp
-command source ./nlp/bin/activate
-command pip install --upgrade pip # do not need install --user any more
-command pip install torch==1.5.0+cu101 torchvision==0.6.0+cu101 -f https://download.pytorch.org/whl/torch_stable.html
-command pip list
-command deactivate
+pip3 install --user virtualenv
+python3 --version
+virtualenv --system-site-packages -p python3 ./nlp
+source ./nlp/bin/activate
+pip install --upgrade pip # do not need install --user any more
+pip install torch==1.5.0+cu101 torchvision==0.6.0+cu101 -f https://download.pytorch.org/whl/torch_stable.html
+pip list
+deactivate
 ```
 
-#### Prepare for training
+#### Prepare for training (**Do this every time you want to train**)
 - Load necessary module every time login to Leonhard
 ```shell script
-command module load module load gcc/6.3.0 python_gpu/3.7.4 # Python 3.7.4, TensorFlow 2.0.0, PyTorch 1.5.0 CUDA 10.1.243, cuDNN 7.6.4
-command module load hdf5/1.10.1
+module load gcc/6.3.0 python_gpu/3.7.4 # Python 3.7.4, TensorFlow 2.0.0, PyTorch 1.5.0 CUDA 10.1.243, cuDNN 7.6.4
+module load hdf5/1.10.1
 ```
 - Activate virtualenv
 ```shell script
-command source ./nlp/bin/activate
+source ./nlp/bin/activate
 ```
 
+
+#### Train (**You can submit as many traininj jobs you want within single session**)
 - Submit a GPU job
 ```shell script
-command bsub -n 4 -W 4:00 -R "rusage[mem=2048, ngpus_excl_p=1]" python bert_train.py 
+bsub -n 4 -W 4:00 -R "rusage[mem=2048, ngpus_excl_p=1]" python bert_train.py 
 ```
 
 - Monitoring
 ```shell script
-command watch -n 0.1 bpeek
+watch -n 0.1 bpeek
 ```
