@@ -69,7 +69,7 @@ vocabularies folder:
 
 
 ## LEONHARD TUTORIAL
-
+#### FULL TUTORIAL AVAILABLE [HERE](https://scicomp.ethz.ch/wiki/Getting_started_with_clusters)
 #### Login into Leonhard environment (**Every time you want to do something on Leonhard**)
 Every student should have his/her personal home directory on leonhard by default.
 This means that you can do whatever you want, independet of others!
@@ -90,37 +90,73 @@ echo "export PYTHONPATH=$HOME/python/lib64/python3.7/site-packages:$PYTHONPATH" 
 source ~/.bash_profile
 module load gcc/6.3.0 python_gpu/3.7.4
 ```
+
+- Setup the project
+```shell script
+cd ~
+git clone https://gitlab.ethz.ch/mstevan/cil-spring20-project.git
+```
+    Input your nethz username and password when prompted
+
 - Create virtualenv
 ```shell script
+cd ~/cil-spring20-project/
 pip3 install --user virtualenv
-python3 --version
-virtualenv --system-site-packages -p python3 ./nlp
-source ./nlp/bin/activate
-pip install --upgrade pip # do not need install --user any more
+virtualenv --system-site-packages -p python3 venv
+source ./venv/bin/activate
+pip install --upgrade pip
+pip install -r requirements.txt
 pip install torch==1.5.0+cu101 torchvision==0.6.0+cu101 -f https://download.pytorch.org/whl/torch_stable.html
-pip list
 deactivate
 ```
 
+
 #### Prepare for training (**Do this every time you want to train**)
-- Load necessary module every time login to Leonhard
+- Outside of Leonhard copy the necessary files that are missing (if not already coppied before) - example .gitignored from project such as datasets 
 ```shell script
-module load gcc/6.3.0 python_gpu/3.7.4 # Python 3.7.4, TensorFlow 2.0.0, PyTorch 1.5.0 CUDA 10.1.243, cuDNN 7.6.4
+scp -r path-to-the-directory-on-local-pc/cil-spring20-project/twitter-datasets nethzusername@login.leonhard.ethz.ch:~/cil-spring20-project/
+```
+    Input your nethz password when prompted
+    
+- Login to Leonhard as instructed before and run everything on it from now on
+- Get latest version of your code
+```shell script
+cd ./cil-spring20-project/ && git pull && cd ~
+```
+
+- Load necessary module 
+```shell script
+module load gcc/6.3.0 python_gpu/3.7.4
 module load hdf5/1.10.1
 ```
+
 - Activate virtualenv
 ```shell script
-source ./nlp/bin/activate
+source ./cil-spring20-project/venv/bin/activate
 ```
 
 
-#### Train (**You can submit as many traininj jobs you want within single session**)
+#### Train (**You can submit as many training jobs you want within single session**)
 - Submit a GPU job
 ```shell script
-bsub -n 4 -W 4:00 -R "rusage[mem=2048, ngpus_excl_p=1]" python bert_train.py 
-```
+(cd ~/cil-spring20-project/ && bsub -n 4 -W 4:00 -R "rusage[mem=2048, ngpus_excl_p=1]" python ~/cil-spring20-project/algorithms/baseline_one/bow_train.py -d train-short -v cut-vocab-test-frequency-20.pkl)
+``` 
 
 - Monitoring
 ```shell script
 watch -n 0.1 bpeek
 ```
+
+- Checking the log
+
+    Job's output is written into a file named lsf.oJobID in the directory where you executed bsub.
+If you want to change this, you can either use the -o option. 
+Or you can simply use the Submit a GPU job command from within some other folder (command is precreated to support this). 
+More information is available [here](https://scicomp.ethz.ch/wiki/Getting_started_with_clusters#Output_file)
+
+#### Push results to git (**You can select which ones you want to push yourself**)
+- Using helper functions creates a results subfolder under your algorithm folder
+- Each training attempt creates folder with unique name and stores trained model there while test creates submission file there
+- Decide which ones you want to git add (be careful not to include unnecessary files)
+- git commit -m "name-of-algorithm-new-results"
+- git push
