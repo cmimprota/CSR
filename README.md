@@ -114,7 +114,6 @@ cat $HOME/.ssh/id_rsa.pub | ssh username@login.leonhard.ethz.ch "cat - >> .ssh/a
 
 Finally this commands should be executed back on the Leonhard cluster to make everything work:
 ```
-unset SSH_ASKPASS
 chmod 700 $HOME/.ssh
 chmod 600 ~/.ssh/authorized_keys
 ```
@@ -133,10 +132,10 @@ module load gcc/6.3.0 python_gpu/3.7.4
 
 ```
 cd ~
-git clone https://gitlab.ethz.ch/mstevan/cil-spring20-project.git
+git clone git@gitlab.ethz.ch:mstevan/cil-spring20-project.git
 ```
 
-Input your nethz username and password if prompted (SHOULD NOT HAPPEN IF YOU HAVE DONE SSH STEP)
+If the authenticity of host 'gitlab.ethz.ch (129.132.202.219)' can't be established is prompted, type yes and click enter
 
 - Create virtualenv
 
@@ -159,8 +158,6 @@ deactivate
 scp -r path-to-the-directory-on-local-pc/cil-spring20-project/twitter-datasets nethzusername@login.leonhard.ethz.ch:~/cil-spring20-project/
 ```
 
-Input your nethz password if prompted (SHOULD NOT HAPPEN IF YOU HAVE DONE SSH STEP)
-    
 - Login to Leonhard as instructed before and run everything on it from now on
 - Get latest version of your code
 ```shell script
