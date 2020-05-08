@@ -1,6 +1,3 @@
-# INPUT: -d <dataset filename>
-#        -meth <preprocessing method>
-
 # OUTPUT: txt file of preprocessed tweets
 
 # Note: contrary to word-embeddings, data-preprocessing methods are deterministic, i.e
@@ -19,19 +16,22 @@ import constants
 def main():
     parser = ArgumentParser()
     parser.add_argument("--meth", choices=["xcb", "noop"], default="xcb")
-    parser.add_argument("to_preproc", help="raw tweets dataset to preprocess") #, choices=["test_data", "train_neg_full", "train_neg", "train_pos_full", "train_pos"])
+    parser.add_argument("to_preproc", help="raw tweets dataset to preprocess (full path to txt file")
     args = parser.parse_args()
+
+    # extract base dataset name from the path, expected of the form `twitter-datasets/<base_data>.txt`
+    base_data = os.path.splitext( os.path.basename(args.to_preproc) )[0]
 
     # create output dir if it doesn't exist yet
     outdir = os.path.join(constants.DATASETS_PATH, f"preprocessed__{args.meth}") # TODO: include eventual parameters in the dir name
     os.makedirs(outdir, exist_ok=True)
     
-    with open(os.path.join(constants.DATASETS_PATH, f"{args.to_preproc}.txt")) as f:
+    with open(args.to_preproc) as f:
         tweets = f.readlines()
     
     DP = create_DataPreprocessor(method=args.meth)
 
-    with open(os.path.join(outdir, f"{args.to_preproc}.txt"), 'w') as f:
+    with open(os.path.join(outdir, f"{base_data}.txt"), 'w') as f:
         for tweet in tqdm(tweets):
             res = DP.preprocess(tweet)
             f.write(res + "\n")

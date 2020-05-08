@@ -23,6 +23,7 @@ def main():
         vocab = pickle.load(f)
 
     with open(args.o, 'w') as f:
+        # TODO: drop support for dictionary representation inside pkl files
         if isinstance(vocab, dict):
             # sort dictionary by value and iterate
             for k, v in sorted(vocab.items(), key=lambda item: item[1]):

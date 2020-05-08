@@ -22,6 +22,7 @@ if args.o is None:
 
 def main():
     with open(args.input) as f:
+        # TODO: drop support for dictionary representation inside pkl files
         if args.format == "list": # list representation l[idx]=word
             vocab = f.read().splitlines()
         else: # dict representation {word: idx}
