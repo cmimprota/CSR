@@ -123,7 +123,7 @@ chmod 600 ~/.ssh/authorized_keys
 mkdir $HOME/python
 cd $HOME/python
 mkdir -p lib64/python3.7/site-packages
-echo "export PYTHONPATH=$HOME/python/lib64/python3.7/site-packages:$PYTHONPATH" >> ~/.bash_profile
+echo "export PYTHONPATH=$HOME/cil-spring20-project:$HOME/python/lib64/python3.7/site-packages" >> ~/.bash_profile
 source ~/.bash_profile
 module load gcc/6.3.0 python_gpu/3.7.4
 ```
