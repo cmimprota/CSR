@@ -1,4 +1,4 @@
-# Folder for storing (cut)) vocabularies
+# Folder for storing (cut) vocabularies
 
 - This folder is just a storage folder.
 - Should not contain any scripts
