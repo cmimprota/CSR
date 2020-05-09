@@ -48,7 +48,7 @@ def main():
     with open(args.dataset) as f:
         tweets = f.readlines() # (these are preprocessed tweets)
 
-    VB = create_VocabBuilder(method=args.meth, freq_thresh=args.freq, k=args.k)
+    VB = create_VocabBuilder(method=args.meth, freq_threshold=args.freq, k=args.k)
 
     vocab = VB.build_vocab(tweets, interm_dir=outdir)
 
@@ -87,8 +87,8 @@ def create_VocabBuilder(method, **kwargs):
     Args: 
         method ("xcb" or "noop"): method to use for preprocessing tweets
         kwargs (dict): additional parameters passed through keyword arguments. Possible parameters:
-            'freq_thresh' (float) for method "freq_thresh"
-            'k' (int) for method "top_k_freq"
+            'freq_threshold' (float) for method "freq-thresh"
+            'k' (int) for method "top-k-freq"
 
     """
     from no_cut import NoCutVB
@@ -98,10 +98,10 @@ def create_VocabBuilder(method, **kwargs):
 
     if method == "no-cut":
         return NoCutVB()
-    elif method == "freq_thresh":
-        assert 'freq_thresh' in kwargs
-        return FrequencyThresholdVB(freq_thresh=kwargs['freq_thresh'])
-    elif method == "top_k_freq":
+    elif method == "freq-thresh":
+        assert 'freq_threshold' in kwargs
+        return FrequencyThresholdVB(freq_thresh=kwargs['freq_threshold'])
+    elif method == "top-k-freq":
         assert 'k' in kwargs
         return TopKFrequencyVB(k=kwargs['k'])
     else:

@@ -16,7 +16,7 @@ class TopKFrequencyVB(VocabBuilder):
         path_to_occ_dict = interm_dir and os.path.join(interm_dir, "full_occurrence_dict.pkl")
         if interm_dir is not None and os.path.exists(path_to_occ_dict):
             with open(path_to_occ_dict, "rb") as f:
-                occ_dict = pickle.load(inputfile)
+                occ_dict = pickle.load(f)
         else:
             occ_dict = build_occ_dict(tweets)
             # save intermediary result
@@ -25,6 +25,7 @@ class TopKFrequencyVB(VocabBuilder):
 
         # sort dictionary by value
         sortedl = [ k for k, v in sorted(occ_dict.items(), key=lambda item: item[1]) ]
+        sortedl = sortedl[::-1]
         
         # Select the self.k most frequent words.
         return sortedl[:self.k]
