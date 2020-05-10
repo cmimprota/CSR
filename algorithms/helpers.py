@@ -2,6 +2,7 @@ import csv
 import getpass
 import os
 import pickle
+import sys
 
 import pandas
 from datetime import datetime
@@ -22,8 +23,10 @@ def save_model(trained_model, vocabulary, dataset):
     :param dataset: passed as parameter of script for running the training. (selects full vs short dataset)
     :return: void
     """
-    if not os.path.exists("configuration_log.csv"):
-        with open("configuration_log.csv", "w+") as config_file:
+    invoking_algorithm_path = os.path.dirname(os.path.realpath(sys.argv[0]))
+    log_file_path = os.path.join(invoking_algorithm_path, "configuration_log.csv")
+    if not os.path.exists(log_file_path):
+        with open(log_file_path, "w+") as config_file:
             w = csv.writer(config_file)
             w.writerow(["Author", "Timestamp", "Vocabulary", "Dataset"])
 
@@ -31,11 +34,11 @@ def save_model(trained_model, vocabulary, dataset):
     datetime_now = datetime.now()
     timestamp = datetime_now.strftime("%d.%m_%H.%M.%S")
 
-    with open("configuration_log.csv", "a+") as config_file:
+    with open(log_file_path, "a+") as config_file:
         w = csv.writer(config_file)
         w.writerow([username, timestamp, vocabulary, dataset])
 
-    path_for_results = os.path.join(os.path.curdir, "results", f"{username}-{timestamp}")
+    path_for_results = os.path.join(invoking_algorithm_path, "results", f"{username}-{timestamp}")
     os.makedirs(path_for_results)
 
     joblib.dump(trained_model, os.path.join(path_for_results, "trained_model.pkl"), compress=9)
@@ -54,7 +57,9 @@ def load_vocabulary(model_folder):
     :param model_folder: passed as parameter of script for running the testing. (selects the vocab used for the model)
     :return vocab: The same one that was used for the selected model.
     """
-    df = pandas.read_csv("configuration_log.csv")
+    invoking_algorithm_path = os.path.dirname(os.path.realpath(sys.argv[0]))
+    log_file_path = os.path.join(invoking_algorithm_path, "configuration_log.csv")
+    df = pandas.read_csv(log_file_path)
     username = model_folder.split("-")[0]
     timestamp = model_folder.split("-")[1]
 
@@ -71,7 +76,8 @@ def load_model(model_folder):
     :param model_folder: passed as parameter of script for running the testing. (selects the previously generated model)
     :return 'trained_model': the one that was generated with training script.
     """
-    path_for_results = os.path.join(os.path.curdir, "results", model_folder)
+    invoking_algorithm_path = os.path.dirname(os.path.realpath(sys.argv[0]))
+    path_for_results = os.path.join(invoking_algorithm_path, "results", model_folder)
     trained_model = joblib.load(os.path.join(path_for_results, "trained_model.pkl"))
     return trained_model
 
@@ -83,10 +89,11 @@ def save_submission(label_predictions, model_folder):
     :param model_folder: passed as parameter of script for running the testing. (selects the previously generated model)
     :return: void
     """
-    path_for_results = os.path.join(os.path.curdir, "results", model_folder)
+    invoking_algorithm_path = os.path.dirname(os.path.realpath(sys.argv[0]))
+    path_for_results = os.path.join(invoking_algorithm_path, "results", model_folder)
     with open(os.path.join(path_for_results, "submission.csv"), "w") as f:
         f.write("Id,Prediction\n")
-        i = 0;
+        i = 0
         for label in label_predictions:
                 i += 1
                 f.write(f"{i},{label}\n")
