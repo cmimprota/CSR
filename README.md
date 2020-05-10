@@ -190,10 +190,15 @@ source ./cil-spring20-project/venv/bin/activate
 
 
 #### Train (**You can submit as many training jobs you want within single session**)
-- Submit a GPU job
+- Submit a GPU job (for S this managed to timeout)
 ```
 cd ~/cil-spring20-project/algorithms/baseline_one/ && bsub -n 4 -W 4:00 -R "rusage[mem=2048, ngpus_excl_p=1]" python bow_train.py -d train-short -v cut-vocab-test-frequency-20.pkl && cd ~
 ``` 
+
+- Submit a job without GPU (for S this did not timeout for the same training model)
+```
+bsub -n 20 -R "rusage[mem=4500]" python ~/cil-spring20-project/algorithms/baseline_one/bow_train.py -d train-full -v cut-vocab-test-frequency-20.pkl
+```
 
 - Monitoring
 ```
@@ -256,8 +261,7 @@ Do not forget to **source ~/.bash_profile**
 
 #### Results folder created in a weird places
 
-If you take a degree of freedom and run the job using your own command and not the one specified in Submit a GPU job section, 
-it can happen that results folder with your trained model ends up in a weird location due to the way helper.py script was created.
+Even though most of bugs have been fixed, it can happen that results folder with your trained model ends up in a weird location due to the way helper.py script was created.
 In this case please locate the results folder and copy it to the repository at the correct location
 
 ```
