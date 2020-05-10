@@ -69,58 +69,199 @@ vocabularies folder:
 
 
 ## LEONHARD TUTORIAL
-
+#### FULL TUTORIAL AVAILABLE [HERE](https://scicomp.ethz.ch/wiki/Getting_started_with_clusters)
 #### Login into Leonhard environment (**Every time you want to do something on Leonhard**)
 Every student should have his/her personal home directory on leonhard by default.
 This means that you can do whatever you want, independet of others!
 1.  VPN to ETH network
 2.  ssh nethzusername@login.leonhard.ethz.ch.
-3.  Input your nethz password when prompted
-4.  Type Yes to agree to the terms
+3.  Input your nethz password when prompted (WILL BE ASKED IF SSH KEYS ARE NOT SETUP)
+4.  Type Yes to agree to the terms (WILL BE ASKED ONLY ONCE IN LIFETIME)
 
 Congratulations, you are there!
 
 #### Setup environment (**Do this only once, before training for the first time**)
-- Installing a Python package locally, using distutils
-```shell script
+- Setup SSH keys
+You do not need to know what SSH keys are, you need to know what it allows. 
+It allows you to do git clone and git push without typing credentials every time.
+Lets do the following set of commands on Leonhard first!
+
+```
+ssh-keygen
+```
+
+It will ask to save key at /cluster/home/username/.ssh/id_rsa - press enter.
+It will ask for passphrase - leave it empty and press enter twice.
+Great, SSH is created and now we can attach it to your gitlab account.
+
+```
+cat ~/.ssh/id_rsa.pub 
+```
+   
+1.  You will see a long string output in your terminal. Please select it and right click copy
+2.  Go to [https://gitlab.ethz.ch/](https://gitlab.ethz.ch/) and log in
+3.  Click in top right corner and select settings
+4.  From the left side menu click on SSH keys
+5.  Paste the long text in the big textbox under Key
+6.  In Title textbox enter Leonhard and press Add Key button below
+
+    Great, now go and repeat the same procedure on your local computer (if you do not already have the ssh and did not put it in the gitlab).
+If you execute the following command on your local coputer it will allow to login to Leonhard or copy files using scp command without prompting for credentials:
+
+```
+cat $HOME/.ssh/id_rsa.pub | ssh username@login.leonhard.ethz.ch "cat - >> .ssh/authorized_keys"
+```
+
+Finally this commands should be executed back on the Leonhard cluster to make everything work:
+```
+chmod 700 $HOME/.ssh
+chmod 600 ~/.ssh/authorized_keys
+```
+
+- Installing a Python package locally, using distutils (FULL GUIDE [HERE](https://scicomp.ethz.ch/wiki/Python#Installing_a_Python_package.2C_using_PIP))
+
+We are using a cluster, meaning that there is python already installed that we are supposed to simply load as module.
+However, python interpreter is looking for the modules (libraries) under the root location that we do not have access to.
+We cannot sudo and simply install libraries that we want. In order to be able to do that we will set the PYTHONPATH to a local folder that we will create.
+This variable tells the python interpreter where to look for the modules (libraries).
+
+```
 mkdir $HOME/python
 cd $HOME/python
 mkdir -p lib64/python3.7/site-packages
-echo "export PYTHONPATH=$HOME/python/lib64/python3.7/site-packages:$PYTHONPATH" >> ~/.bash_profile
+echo "export PYTHONPATH=$HOME/cil-spring20-project:$HOME/python/lib64/python3.7/site-packages" >> ~/.bash_profile
 source ~/.bash_profile
 module load gcc/6.3.0 python_gpu/3.7.4
 ```
+
+- Setup the project
+
+In order for SSH keys to work, clone the repository using this specific URL and not the https one.
+
+```
+cd ~
+git clone git@gitlab.ethz.ch:mstevan/cil-spring20-project.git
+```
+
+If the authenticity of host 'gitlab.ethz.ch (129.132.202.219)' can't be established is prompted, type yes and click enter
+
 - Create virtualenv
+
+Typically all the modules (libraries) that we need should be in requirements.txt and we can use it to quickly download them in venv 
+
 ```shell script
+cd ~/cil-spring20-project/
 pip3 install --user virtualenv
-python3 --version
-virtualenv --system-site-packages -p python3 ./nlp
-source ./nlp/bin/activate
-pip install --upgrade pip # do not need install --user any more
+virtualenv --system-site-packages -p python3 venv
+source ./venv/bin/activate
+pip install --upgrade pip
+pip install -r requirements.txt
 pip install torch==1.5.0+cu101 torchvision==0.6.0+cu101 -f https://download.pytorch.org/whl/torch_stable.html
-pip list
 deactivate
 ```
 
+
 #### Prepare for training (**Do this every time you want to train**)
-- Load necessary module every time login to Leonhard
-```shell script
-module load gcc/6.3.0 python_gpu/3.7.4 # Python 3.7.4, TensorFlow 2.0.0, PyTorch 1.5.0 CUDA 10.1.243, cuDNN 7.6.4
+- Outside of Leonhard copy the necessary files that are missing (if not already coppied before) - example .gitignored from project such as datasets 
+
+```
+scp -r path-to-the-directory-on-local-pc/cil-spring20-project/twitter-datasets nethzusername@login.leonhard.ethz.ch:~/cil-spring20-project/
+```
+
+- Login to Leonhard as instructed before and run everything on it from now on
+
+- Get latest version of your code
+
+```
+cd ./cil-spring20-project/ && git pull && cd ~
+```
+
+- Load necessary module 
+
+```
+module load gcc/6.3.0 python_gpu/3.7.4
 module load hdf5/1.10.1
 ```
+
 - Activate virtualenv
-```shell script
-source ./nlp/bin/activate
+```
+source ./cil-spring20-project/venv/bin/activate
 ```
 
 
-#### Train (**You can submit as many traininj jobs you want within single session**)
+#### Train (**You can submit as many training jobs you want within single session**)
 - Submit a GPU job
-```shell script
-bsub -n 4 -W 4:00 -R "rusage[mem=2048, ngpus_excl_p=1]" python bert_train.py 
 ```
+cd ~/cil-spring20-project/algorithms/baseline_one/ && bsub -n 4 -W 4:00 -R "rusage[mem=2048, ngpus_excl_p=1]" python bow_train.py -d train-short -v cut-vocab-test-frequency-20.pkl && cd ~
+``` 
 
 - Monitoring
-```shell script
+```
 watch -n 0.1 bpeek
+```
+
+- Checking the log
+
+    Job's output is written into a file named lsf.oJobID in the directory where you executed bsub. 
+    If you used the command above, it will end up under your algorithm folder.
+    If you want to change this, you can either use the -o option. 
+    Or you can simply use the Submit a GPU job command from within some other folder (command is precreated to support this). 
+    More information is available [here](https://scicomp.ethz.ch/wiki/Getting_started_with_clusters#Output_file)
+
+#### Push results to git (**You can select which ones you want to push yourself**)
+- Using helper functions creates a results subfolder under your algorithm folder
+- Each training attempt creates folder with unique name and stores trained model there while test creates submission file there
+- Decide which ones you want to add using this command for each file **git add filename** (be careful not to include unnecessary files)
+- git commit -m "name-of-algorithm-new-results"
+- git push
+
+
+## Troubleshooting
+#### ModuleNotFoundError: No module named 'algorithms'
+This can happen if you are not using a smart IDE that figures out things by itself. 
+The problem is that if you are trying to run a python file that is stored in a subfolder of subfolder... it is unable to load these modules.
+Two possible fixes:
+1.  In the scrypt that you are running insert following code at the beginning. 
+
+```
+sys.path.insert(1, os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
+```
+
+Not that number of os.path.dirnames have to match the distance of the subfolder from the root folder
+2.  Modify your PYTHONPATH variable. This variable tells the python interpreter where to look for the modules. 
+Variable can contain multiple folders that are separated by semicolon (:). This modification can sometimes be very painful but it short can be done with following command:
+
+```
+echo "export PYTHONPATH=$HOME/cil-spring20-project:$PYTHONPATH" >> ~/.bash_profile
+```
+
+The command means take the current value of PYTHONPATH variable, append the $HOME/cil-spring20-project and append this whole command with export to ~/.bash_profile.
+It often happens that people expect it to become available immediately. But it does not work like that. In order for your variable to be effective you need to use:
+
+```
+source ~/.bash_profile
+```
+
+Because it doesn't work with the command above, it often happens that you call the echo export couple of times. However that creates a mess which can be verified with:
+
+```
+echo $PYTHONPATH
+```
+
+If this is a case, do not worry, everything can be easily fixed. You need to manually modify the ~/.bash_profile. 
+It is perfectly fine that you open it with **nano ~/.bash_profile** (if on cluster remember to **module load nano** before that).
+All you have to do is to delete all rows starting with **export PYTHONPATH** and leave a single one. 
+If your single one contains multiple same folders separated with semicolon you can delete them as well.
+Do not forget to **source ~/.bash_profile**
+
+#### Results folder created in a weird places
+
+If you take a degree of freedom and run the job using your own command and not the one specified in Submit a GPU job section, 
+it can happen that results folder with your trained model ends up in a weird location due to the way helper.py script was created.
+In this case please locate the results folder and copy it to the repository at the correct location
+
+```
+find . -name results
+cp -a previous_output/results/. ~/cil-spring20-project/algorithms/your_algorithm_folder/results/
+rm -rf previous_output/results
 ```
