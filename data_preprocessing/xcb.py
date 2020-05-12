@@ -28,12 +28,16 @@ class XcbDP(DataPreprocessor):
         tweet = re.sub(self.htmltag, ' ', tweet)        # Remove <user><url>
         tweet = re.sub('[^a-z A-Z0-9_#]', ' ', tweet)   # Keep hashtag, remove punctuation
         tweet = re.sub(' \d+', ' ', tweet)              # Remove digits
-        hashtags = {tag.strip("#") for tag in tweet.split() if tag.startswith("#")} # Get hashtags
-        for hashtag in hashtags:
-            clean_tag = wordsegment.segment(hashtag)    # Transform hashtags into meaningful words
-            for c_t in clean_tag:
-                tweet += c_t + " "
-        tweet = " ".join(filter(lambda x:x[0]!='#', tweet.split()))
+
+        clean_tweet = []
+        for tag in tweet.split():
+            if tag.startswith("#"):
+                tag = wordsegment.segment(tag)
+                for t in tag:
+                    clean_tweet.append(t)
+            else:
+            clean_tweet.append(tag)
+        tweet = str(clean_tweet)
         tweet = [w for w in tweet.split() if w not in stopwords.words('english') and w not in self.incorrect_stopwords and len(w) >= 3]
         
         tweet = [self.wnl.lemmatize(w) for w in tweet]       # Tidy
