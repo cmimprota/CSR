@@ -108,7 +108,7 @@ def create_VocabBuilder(method, **kwargs):
         raise ValueError("unrecognized cutting method")
 
 class VocabBuilder: # (skl.base.TransformerMixin):
-    """Absract class for (cut) vocabulary building"""
+    """Abstract class for (cut) vocabulary building"""
     def __init__(self):
         super().__init__()
     def build_vocab(self, tweets, interm_dir=None):

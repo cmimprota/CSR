@@ -6,3 +6,10 @@ The script `vocab_builder.py` allows to build a (cut) vocabulary from a preproce
 
 The code follows the same structure as other stages of the pipeline, e.g `tweet_embedder`. As a free benefit of the code structure, through the exported class `VocabBuilder`, a vocabulary can be built from an arbitrary list of tweets (can be useful for testing). 
 -- Although it's admittedly less useful than for other stages.
+
+Example:
+```bash
+python vocab_building/vocab_builder.py twitter-datasets/preprocessed__noop/test_data.txt --meth top-k-freq -k 500
+# look for the output files at vocabularies/noop__test_data/top-k-freq__500.pkl and .txt
+# also creates intermediary file vocabularies/noop__test_data/full_occurrence_dict.pkl
+```

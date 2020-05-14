@@ -16,7 +16,7 @@ import constants
 def main():
     parser = ArgumentParser()
     parser.add_argument("--meth", choices=["xcb", "noop"], default="xcb")
-    parser.add_argument("to_preproc", help="raw tweets dataset to preprocess (full path to txt file")
+    parser.add_argument("to_preproc", help="raw tweets dataset to preprocess (full path to txt file)")
     args = parser.parse_args()
 
     # extract base dataset name from the path, expected of the form `twitter-datasets/<base_data>.txt`
@@ -56,6 +56,12 @@ class DataPreprocessor: # (skl.base.TransformerMixin):
     def __init__(self):
         super().__init__()
     def preprocess(self, tweet):
+        """
+        Args:
+            tweet (str): the raw tweet
+        Returns:
+            preprocessed_tweet (str): the preprocessed tweet as a string
+        """
         raise NotImplementedError("DataPreprocessor is a (fake) abstract class. Must use a subclass, e.g NoopDP or XcbDP")
 
 if __name__ == '__main__':
