@@ -118,8 +118,14 @@ chmod 700 $HOME/.ssh
 chmod 600 ~/.ssh/authorized_keys
 ```
 
-- Installing a Python package locally, using distutils
-```shell script
+- Installing a Python package locally, using distutils (FULL GUIDE [HERE](https://scicomp.ethz.ch/wiki/Python#Installing_a_Python_package.2C_using_PIP))
+
+We are using a cluster, meaning that there is python already installed that we are supposed to simply load as module.
+However, python interpreter is looking for the modules (libraries) under the root location that we do not have access to.
+We cannot sudo and simply install libraries that we want. In order to be able to do that we will set the PYTHONPATH to a local folder that we will create.
+This variable tells the python interpreter where to look for the modules (libraries).
+
+```
 mkdir $HOME/python
 cd $HOME/python
 mkdir -p lib64/python3.7/site-packages
@@ -130,6 +136,8 @@ module load gcc/6.3.0 python_gpu/3.7.4
 
 - Setup the project
 
+In order for SSH keys to work, clone the repository using this specific URL and not the https one.
+
 ```
 cd ~
 git clone git@gitlab.ethz.ch:mstevan/cil-spring20-project.git
@@ -138,6 +146,8 @@ git clone git@gitlab.ethz.ch:mstevan/cil-spring20-project.git
 If the authenticity of host 'gitlab.ethz.ch (129.132.202.219)' can't be established is prompted, type yes and click enter
 
 - Create virtualenv
+
+Typically all the modules (libraries) that we need should be in requirements.txt and we can use it to quickly download them in venv 
 
 ```shell script
 cd ~/cil-spring20-project/
@@ -159,28 +169,36 @@ scp -r path-to-the-directory-on-local-pc/cil-spring20-project/twitter-datasets n
 ```
 
 - Login to Leonhard as instructed before and run everything on it from now on
+
 - Get latest version of your code
-```shell script
+
+```
 cd ./cil-spring20-project/ && git pull && cd ~
 ```
 
 - Load necessary module 
-```shell script
+
+```
 module load gcc/6.3.0 python_gpu/3.7.4
 module load hdf5/1.10.1
 ```
 
 - Activate virtualenv
-```shell script
+```
 source ./cil-spring20-project/venv/bin/activate
 ```
 
 
 #### Train (**You can submit as many training jobs you want within single session**)
-- Submit a GPU job
+- Submit a GPU job (for S this managed to timeout)
 ```
-(cd ~/cil-spring20-project/ && bsub -n 4 -W 4:00 -R "rusage[mem=2048, ngpus_excl_p=1]" python ~/cil-spring20-project/algorithms/baseline_one/bow_train.py -d train-short -v cut-vocab-test-frequency-20.pkl)
+cd ~/cil-spring20-project/algorithms/baseline_one/ && bsub -n 4 -W 4:00 -R "rusage[mem=2048, ngpus_excl_p=1]" python bow_train.py -d train-short -v cut-vocab-test-frequency-20.pkl && cd ~
 ``` 
+
+- Submit a job without GPU (for S this did not timeout for the same training model)
+```
+bsub -n 20 -R "rusage[mem=4500]" python ~/cil-spring20-project/algorithms/baseline_one/bow_train.py -d train-full -v cut-vocab-test-frequency-20.pkl
+```
 
 - Monitoring
 ```
@@ -189,14 +207,65 @@ watch -n 0.1 bpeek
 
 - Checking the log
 
-    Job's output is written into a file named lsf.oJobID in the directory where you executed bsub.
-If you want to change this, you can either use the -o option. 
-Or you can simply use the Submit a GPU job command from within some other folder (command is precreated to support this). 
-More information is available [here](https://scicomp.ethz.ch/wiki/Getting_started_with_clusters#Output_file)
+    Job's output is written into a file named lsf.oJobID in the directory where you executed bsub. 
+    If you used the command above, it will end up under your algorithm folder.
+    If you want to change this, you can either use the -o option. 
+    Or you can simply use the Submit a GPU job command from within some other folder (command is precreated to support this). 
+    More information is available [here](https://scicomp.ethz.ch/wiki/Getting_started_with_clusters#Output_file)
 
 #### Push results to git (**You can select which ones you want to push yourself**)
 - Using helper functions creates a results subfolder under your algorithm folder
 - Each training attempt creates folder with unique name and stores trained model there while test creates submission file there
-- Decide which ones you want to git add (be careful not to include unnecessary files)
+- Decide which ones you want to add using this command for each file **git add filename** (be careful not to include unnecessary files)
 - git commit -m "name-of-algorithm-new-results"
 - git push
+
+
+## Troubleshooting
+#### ModuleNotFoundError: No module named 'algorithms'
+This can happen if you are not using a smart IDE that figures out things by itself. 
+The problem is that if you are trying to run a python file that is stored in a subfolder of subfolder... it is unable to load these modules.
+Two possible fixes:
+1.  In the scrypt that you are running insert following code at the beginning. 
+
+```
+sys.path.insert(1, os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
+```
+
+Not that number of os.path.dirnames have to match the distance of the subfolder from the root folder
+2.  Modify your PYTHONPATH variable. This variable tells the python interpreter where to look for the modules. 
+Variable can contain multiple folders that are separated by semicolon (:). This modification can sometimes be very painful but it short can be done with following command:
+
+```
+echo "export PYTHONPATH=$HOME/cil-spring20-project:$PYTHONPATH" >> ~/.bash_profile
+```
+
+The command means take the current value of PYTHONPATH variable, append the $HOME/cil-spring20-project and append this whole command with export to ~/.bash_profile.
+It often happens that people expect it to become available immediately. But it does not work like that. In order for your variable to be effective you need to use:
+
+```
+source ~/.bash_profile
+```
+
+Because it doesn't work with the command above, it often happens that you call the echo export couple of times. However that creates a mess which can be verified with:
+
+```
+echo $PYTHONPATH
+```
+
+If this is a case, do not worry, everything can be easily fixed. You need to manually modify the ~/.bash_profile. 
+It is perfectly fine that you open it with **nano ~/.bash_profile** (if on cluster remember to **module load nano** before that).
+All you have to do is to delete all rows starting with **export PYTHONPATH** and leave a single one. 
+If your single one contains multiple same folders separated with semicolon you can delete them as well.
+Do not forget to **source ~/.bash_profile**
+
+#### Results folder created in a weird places
+
+Even though most of bugs have been fixed, it can happen that results folder with your trained model ends up in a weird location due to the way helper.py script was created.
+In this case please locate the results folder and copy it to the repository at the correct location
+
+```
+find . -name results
+cp -a previous_output/results/. ~/cil-spring20-project/algorithms/your_algorithm_folder/results/
+rm -rf previous_output/results
+```
