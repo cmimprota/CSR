@@ -27,7 +27,7 @@ def main():
     nmax = 100
     print("using nmax =", nmax, ", cooc.max() =", cooc.max())
 
-    print("initializing embeddings");
+    print("initializing embeddings")
     print("cooc shape 0: ", cooc.shape[0], "cooc shape 1: ", cooc.shape[1])
     embedding_dim = 20
     xs = np.random.normal(size=(cooc.shape[0], embedding_dim))
