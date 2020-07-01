@@ -10,7 +10,7 @@ class FrequencyThresholdVB(VocabBuilder):
         super().__init__()
         self.freq_thresh = freq_thresh
 
-    def build_vocab(self, tweets, interm_dir):
+    def build_vocab(self, tweets, interm_dir=None):
         # get the full occurrence dictionary
         # try loading it from interm_dir
         path_to_occ_dict = interm_dir and os.path.join(interm_dir, "full_occurrence_dict.pkl")

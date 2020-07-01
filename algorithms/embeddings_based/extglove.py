@@ -1,3 +1,8 @@
+from torchtext.vocab import GloVe
+Glove = GloVe()
+
+print(Glove)
+
 # INPUT: -v <vocabulary filename>
 #        -d <dataset filename> (defaults to short dataset)
 

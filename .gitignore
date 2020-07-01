@@ -1,7 +1,10 @@
 /.idea/
 /venv/
-/twitter-datasets/
+/twitter-datasets/**
+!/twitter-datasets/sample_submission.csv
+
 
 /.vscode/
 
 **/__pycache__/
+**/.vector_cache/

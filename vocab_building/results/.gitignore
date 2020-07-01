@@ -1,0 +1,5 @@
+*/**
+
+# to showcase the project structure
+!noop__train_pos_dummy/full_occurrence_dict.pkl
+!noop__train_pos_dummy/top-k-freq__500.txt

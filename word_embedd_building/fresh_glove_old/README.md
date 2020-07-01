@@ -19,18 +19,6 @@ with np.load(f'embeddings__{textdata}__{vocab}.npz') as data:
 - `xs` and `ys` have the same shape, namely `(vocab_size, embedding_dim)`. So, each `xs[i,:]` corresponds to a word in the vocabulary
 - recall that GLOVE model is: $log p = <xs[i], ys[j]>$ measures how often does word $i$ occur in a context of word $j$
 
-### making tweet-embeddings
-One way to use the embeddings for tweets classification is to also embed each tweet, i.e make a tweet-embedding based on the word-embedding. After that, can use any classical model for vector classification (linear or not, actually). There are multiple methods to make such an embedding.
-
-The script `tweet_embedder.py` allows to
-- embed all the tweets from a twitter-dataset, into file `embedded-datasets__<trainingdata>__<vocab>__<method>/embedded_<textdata>.npy` which can then be loaded by
-```python
-embedded_tweets = np.load(f'embedded_{textdata}')
-# embedded_tweets[k,:] is the embedding of the k-th tweet
-```
-- through the exported class `TweetEmbedder`, a tweet from the test dataset can be embedded by calling `TE.embed(tweet)`
-
-
 ### extensions/TODOs
 - looks like the provided solution didn't include separate bias terms, as described in Lecture 5 p.23...
 - the provided solution defines the "context" of a word to be the whole tweet, whereas we could for example limit it to a few positions before and after the word. But it also makes sense to take the whole tweet, so okay.

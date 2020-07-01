@@ -200,3 +200,9 @@ More information is available [here](https://scicomp.ethz.ch/wiki/Getting_starte
 - Decide which ones you want to git add (be careful not to include unnecessary files)
 - git commit -m "name-of-algorithm-new-results"
 - git push
+
+
+
+## Embeddings-based methods
+
+See the data flow in `CIL_embedding_based_overview.jpg` and `CIL_embedding_based_overview_comment.md`.

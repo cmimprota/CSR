@@ -12,7 +12,12 @@ import os
 from argparse import ArgumentParser
 
 import sys
-sys.path.insert(1, os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))) ) # little hack. https://stackoverflow.com/questions/4383571/importing-files-from-different-folder
+sys.path.insert(1, 
+    os.path.dirname(
+    os.path.dirname(
+    os.path.dirname(
+    os.path.abspath(__file__)
+)))) # little hack. https://stackoverflow.com/questions/4383571/importing-files-from-different-folder
 import constants
 
 parser = ArgumentParser()

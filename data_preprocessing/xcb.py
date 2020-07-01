@@ -18,7 +18,7 @@ class XcbDP(DataPreprocessor):
         self.htmltag = re.compile('<.*?>')
         self.wnl = WordNetLemmatizer()
 
-    def preprocess(self, tweet):
+    def preprocess_tweet(self, tweet):
         """
         Args:
             tweet (str): the raw tweet
@@ -39,7 +39,7 @@ class XcbDP(DataPreprocessor):
         tweet = str(clean_tweet)
         tweet = [w for w in tweet.split() if w not in stopwords.words('english') and w not in self.incorrect_stopwords and len(w) >= 3]
         
-        tweet = [self.wnl.lemmatize(w) for w in tweet]       # Tidy
+        tweet = [self.wnl.lemmatize(w) for w in tweet]  # Tidy
 
         tweet = ' '.join(tweet)                         # Detokenized
 
