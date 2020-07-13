@@ -8,6 +8,8 @@ import random
 from argparse import ArgumentParser
 from collections import Counter
 
+import numpy as np
+
 import torch
 import torch.nn as nn
 import torch.optim as optim
@@ -139,13 +141,10 @@ def encode_tweet(tweet):
 
     # Return tweet
     return torch.tensor([bow_gru_matrix], device=DEVICE)
-    
-    
-
 
 ############################### T R A I N I N G     B E G I N ###############################
 
-
+'''
 # We only use training datasets, no test ones (we split this script into test and train)!
 # As training will take long, I don't want code breaking in testing (I want to save the middle result as a checkpoint)
 if args.d == "train-short":
@@ -162,7 +161,7 @@ all_tweets_as_bow_gru_matrices += encode_tweets_as_bow_gru_matrices(parse_negati
 
 # We do not want to train first on positive and then negative. We should shuffle them for better results!
 #random.shuffle(all_tweets_as_bow_gru_matrices)
-
+'''
 # Read the model description in bow_gru_model.py
 model = BoWGRUClassifier(input_size=VOCAB_SIZE,
                          hidden_dim=256,
@@ -187,7 +186,26 @@ losses = []
 
 # TODO: Consider to parametrize number of epochs as well
 
-train_dataset = TweetsDataset(encode_tweets_as_bow_gru_matrices())
+###### USE TORCH DATASET
+data_matrix = []
+
+f_pos = open("../../CIL_clean/train_pos_clean.pkl", "rb")
+t_pos = pickle.load(f_pos)
+l_pos = np.ones(len(t_pos))
+
+for t in t_pos:
+    data_matrix.append(encode_tweet(t))
+    
+f_neg = open("../../CIL_clean/train_neg_clean.pkl", "rb")
+t_neg = pickle.load(f_neg)
+l_neg = np.zeros(len(t_neg))
+
+for t in t_neg:
+    data_matrix.append(encode_tweet(t))
+
+labels = np.concatenate(l_pos, l_neg)
+
+train_dataset = TweetsDataset(data_matrix, labels)
 
 for epoch in range(1):
     # TODO: Training for one epoch took from 12:30 - 15:00
