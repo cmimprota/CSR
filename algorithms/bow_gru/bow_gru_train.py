@@ -11,6 +11,7 @@ from collections import Counter
 import torch
 import torch.nn as nn
 import torch.optim as optim
+from torch.utils.data import Dataset, DataLoader
 from torch.cuda import device
 
 import constants
@@ -18,6 +19,19 @@ from algorithms.baseline_one.bow_model import BoWClassifier
 from algorithms.bow_gru.bow_gru_model import BoWGRUClassifier
 from algorithms.helpers import save_model
 
+############################### D A T A S E T  C L A S S ###############################
+class TweetsDataset(Dataset):
+    def __init__(self, data_tensor, label_tensor):
+        self.data_tensor = data_tensor
+        self.label_tensor = label_tensor
+
+    def __getitem__(self, index):
+        tweet, label = self.data_tensor[index], self.label_tensor[index]
+
+        return tweet, label
+
+    def __len__(self):
+        return len(self.data_tensor)
 
 ############################### I N I T I A L I Z A T I O N     B E G I N ###############################
 
@@ -95,6 +109,39 @@ def encode_tweets_as_bow_gru_matrices(file, label):
         bow_gru_matrices.append((torch.tensor([bow_gru_matrix], device=DEVICE), label))
     return bow_gru_matrices
 
+def encode_tweet(tweet):
+
+    # TODO do the same pre-processing as in build-vocab-full (call it from separate script.py)
+    # preprocessing not needed if we use Xiaochen dataset
+    words = tweet.split()
+    current_number_of_words = 0
+    bow_gru_matrix = []
+    for word in words:
+        # The dimension of matrix must always be MAX_NO_OF_WORDS x length(vocabulary)
+        if not current_number_of_words < MAX_NO_OF_WORDS:
+            break
+
+        # Words not in vocabulary are skipped
+        if word in WORD_TO_INDEX.keys():
+            # Row of the input matrix for GRU has a single 1
+            bow_gru_row_vector = [0.0] * len(vocab)
+            #bow_gru_row_vector = torch.zeros(len(vocab), device=DEVICE)
+            bow_gru_row_vector[WORD_TO_INDEX[word]] = 1.0
+            bow_gru_matrix.append(bow_gru_row_vector)
+            current_number_of_words += 1
+
+    # Pad the matrix with 0 row vectors in case that matrix is not full already
+    while current_number_of_words < MAX_NO_OF_WORDS:
+        bow_gru_row_vector = [0.0] * len(vocab)
+        bow_gru_matrix.append(bow_gru_row_vector)
+        current_number_of_words += 1
+        #bow_gru_matrix.append(torch.zeros(len(vocab), device=DEVICE))
+
+    # Return tweet
+    return torch.tensor([bow_gru_matrix], device=DEVICE)
+    
+    
+
 
 ############################### T R A I N I N G     B E G I N ###############################
 
@@ -114,7 +161,7 @@ all_tweets_as_bow_gru_matrices += encode_tweets_as_bow_gru_matrices(parse_positi
 all_tweets_as_bow_gru_matrices += encode_tweets_as_bow_gru_matrices(parse_negative, 0.0)
 
 # We do not want to train first on positive and then negative. We should shuffle them for better results!
-random.shuffle(all_tweets_as_bow_gru_matrices)
+#random.shuffle(all_tweets_as_bow_gru_matrices)
 
 # Read the model description in bow_gru_model.py
 model = BoWGRUClassifier(input_size=VOCAB_SIZE,
@@ -139,6 +186,9 @@ loss_function = loss_function.to(DEVICE)
 losses = []
 
 # TODO: Consider to parametrize number of epochs as well
+
+train_dataset = TweetsDataset(encode_tweets_as_bow_gru_matrices())
+
 for epoch in range(1):
     # TODO: Training for one epoch took from 12:30 - 15:00
     # Good practice is to log the progress somehow (might be useful for running on a cluster)
@@ -146,6 +196,8 @@ for epoch in range(1):
 
     # Accumulates the losses of the current epoch
     total_loss = 0
+    training_loader = DataLoader(dataset=train_dataset, batch_size=1024, shuffle=True)
+
     for bow_gru_matrix, label in all_tweets_as_bow_gru_matrices:
         # Always call when training the data
         model.zero_grad()
@@ -155,7 +207,7 @@ for epoch in range(1):
         loss.backward()
         optimizer.step()
         total_loss += loss.item()
-    losses.append(total_loss)
+    losses.append(total_loss/num_tweets)
 
 # Print losses of all epochs
 print(losses)
