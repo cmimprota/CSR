@@ -124,7 +124,7 @@ model = BoWGRUClassifier(input_size=VOCAB_SIZE,
                          bidirectional=True,
                          dropout=0.25)
 
-model.to(DEVICE)
+model = model.to(DEVICE)
 
 # BoWClassifier uses BCELoss on output - we have single node in output layer
 # When using labels we should put 0 for negative class and 1 for positive class in the 1d tensor
@@ -133,6 +133,7 @@ model.to(DEVICE)
 # (if we put positive class in sigmoid as 0 then it is opposite)
 optimizer = optim.Adam(model.parameters(), lr=0.1)
 loss_function = nn.BCEWithLogitsLoss()
+loss_function = loss_function.to(DEVICE) 
 
 # Not needed but can be used for debugging
 losses = []
