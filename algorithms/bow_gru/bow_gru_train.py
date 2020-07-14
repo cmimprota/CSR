@@ -5,6 +5,7 @@
 import os
 import pickle
 import random
+import csv
 from argparse import ArgumentParser
 from collections import Counter
 
@@ -23,21 +24,75 @@ from algorithms.helpers import save_model
 
 ############################### D A T A S E T  C L A S S ###############################
 class TweetsDataset(Dataset):
-    def __init__(self, data_tensor, label_tensor):
-        self.data_tensor = data_tensor
-        self.label_tensor = label_tensor
-
-    def __getitem__(self, index):
-        tweet, label = self.data_tensor[index], self.label_tensor[index]
-
-        return tweet, label
-
+    def __init__(self, label_data_path, vocab_path, l0 = 1014):
+        """
+        Arguments:
+            label_data_path: The path of label and data file in csv.
+            l0: max length of a sample.
+            vocab_path: The path of vocab pickle file.
+        """
+        self.label_data_path = label_data_path
+        self.l0 = l0
+        # read vocab
+        self.loadVocab(vocab_path)
+        self.load(label_data_path)
+        
+            
     def __len__(self):
-        return len(self.data_tensor)
+        return len(self.label)
+
+
+    def __getitem__(self, idx):
+        X = self.oneHotEncode(idx)
+        y = self.y[idx]
+        return X, y
+
+    def loadVocab(self, vocab_path):
+        self.vocab = []
+        with open(vocab_path, "rb") as f:
+            ws = pickle.load(f)
+            for w in ws:
+                self.vocab.append(''.join(w))
+
+    def load(self, label_data_path, lowercase = True):
+        self.label = []
+        self.data = []
+        with open(label_data_path, 'r') as f:
+            rdr = csv.reader(f, delimiter=',', quotechar='"')
+            # num_samples = sum(1 for row in rdr)
+            for index, row in enumerate(rdr):
+                if index > 0:
+                    self.label.append(int(row[1]))
+                    txt = ' '.join(row[0:])
+                    if lowercase:
+                        txt = txt.lower()
+                    self.data.append(txt)
+
+        self.y = torch.LongTensor(self.label)
+
+
+    def oneHotEncode(self, idx):
+        # X = (batch, vocab_length, tweet_length_of_words)
+        X = torch.zeros(len(self.vocab), self.l0)
+        sequence = self.data[idx]
+        for index_char, char in enumerate(sequence.split()):
+            X[self.word2Index(char)][index_char] = 1.0
+        return X
+
+    def word2Index(self, character):
+        return self.vocab.index(character)
+
+if __name__ == '__main__':
+    
+    label_data_path = 'CIL_clean/dataset_clean.csv'
+    vocab_path = 'vocabularies/full/test-and-train-full.pkl'
+
+    train_dataset = TweetsDataset(label_data_path, vocab_path)
+    train_loader = DataLoader(train_dataset, batch_size=64, num_workers=4, drop_last=False)
 
 ############################### I N I T I A L I Z A T I O N     B E G I N ###############################
 
-
+'''
 torch.manual_seed(1)
 
 parser = ArgumentParser()
@@ -45,10 +100,14 @@ parser.add_argument("-d", choices=["train-short", "train-full"], help="dataset -
 parser.add_argument("-v", type=str, help="vocabulary - filename in the folder cut")
 args = parser.parse_args()
 
+ROOT_DIR = os.path.dirname(os.path.abspath(__file__))
+DATASETS_PATH = os.path.join(ROOT_DIR, "twitter-datasets")
+VOCABULARIES_FULL_PATH = '/Users/costanzamariaimprota/ETH/Computational Intelligence Lab/cil-spring20-project/vocabularies/full'
+VOCABULARIES_CUT_PATH = '/Users/costanzamariaimprota/ETH/Computational Intelligence Lab/cil-spring20-project/vocabularies/cut/cut-vocab-test-500-most-frequent.pkl'
 
 # It is expected that you have previously created a vocabulary using some .py script from cuttings folder
 # This means that you can selected the created .pkl from the cut folder by passing its filename as args.v
-with open(os.path.join(constants.VOCABULARIES_CUT_PATH, f"{args.v}"), "rb") as inputfile:
+with open(VOCABULARIES_CUT_PATH, "rb") as inputfile:
     vocab = pickle.load(inputfile)
 
 # Vocabulary is in my case ordered dictionary word->occurrences_of_word
@@ -59,14 +118,14 @@ NUM_LABELS = 2
 WORD_TO_INDEX = {}
 for i in range(len(vocab)):
     WORD_TO_INDEX[vocab[i]] = i
-
+'''
 # Same device needs to be used when instantiating tensors as for model. Exception thrown otherwise
 DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 # This is the maximum number of words that we will take into consideration from a single tweet
-MAX_NO_OF_WORDS = 20
+MAX_NO_OF_WORDS = 50
 
-
+'''
 def encode_tweets_as_bow_gru_matrices(file, label):
     """
     From dataset in the file loads all the tweets and encodes each of them as bow_gru_matrix
@@ -75,7 +134,7 @@ def encode_tweets_as_bow_gru_matrices(file, label):
     :return: List of Tuples (bow_gru_matrix, label)
     """
     # We assume that each line is a single tweet
-    with open(os.path.join(constants.DATASETS_PATH, file), "r") as f:
+    with open(os.path.join(DATASETS_PATH, file), "r") as f:
         tweets = f.readlines()
 
     bow_gru_matrices = []
@@ -141,7 +200,7 @@ def encode_tweet(tweet):
 
     # Return tweet
     return torch.tensor([bow_gru_matrix], device=DEVICE)
-
+'''
 ############################### T R A I N I N G     B E G I N ###############################
 
 '''
@@ -178,64 +237,37 @@ model = model.to(DEVICE)
 # In that case negative class is for output < 0.5 and positive for > 0.5
 # (if we put positive class in sigmoid as 0 then it is opposite)
 optimizer = optim.Adam(model.parameters(), lr=0.1)
+
 loss_function = nn.BCEWithLogitsLoss()
 loss_function = loss_function.to(DEVICE) 
 
 # Not needed but can be used for debugging
 losses = []
 
-# TODO: Consider to parametrize number of epochs as well
-
-###### USE TORCH DATASET
-data_matrix = []
-
-f_pos = open("../../CIL_clean/train_pos_clean.pkl", "rb")
-t_pos = pickle.load(f_pos)
-l_pos = np.ones(len(t_pos))
-
-for t in t_pos:
-    data_matrix.append(encode_tweet(t))
+for epoch in range(5):
     
-f_neg = open("../../CIL_clean/train_neg_clean.pkl", "rb")
-t_neg = pickle.load(f_neg)
-l_neg = np.zeros(len(t_neg))
-
-for t in t_neg:
-    data_matrix.append(encode_tweet(t))
-
-labels = np.concatenate(l_pos, l_neg)
-
-train_dataset = TweetsDataset(data_matrix, labels)
-
-for epoch in range(1):
-    # TODO: Training for one epoch took from 12:30 - 15:00
-    # Good practice is to log the progress somehow (might be useful for running on a cluster)
     print(F"Running epoch {epoch}\n")
-
+    
     # Accumulates the losses of the current epoch
     total_loss = 0
-    training_loader = DataLoader(dataset=train_dataset, batch_size=1024, shuffle=True)
 
-    for bow_gru_matrix, label in all_tweets_as_bow_gru_matrices:
-        # Always call when training the data
+    for local_batch, local_labels in enumerate(train_loader):
+        local_batch, local_labels = local_batch.to(DEVICE), local_labels.to(DEVICE)
         model.zero_grad()
-        prediction = model(bow_gru_matrix).squeeze(1)
-        # Do not forget to convert label into a vector otherwise it will not work!!!
-        loss = loss_function(prediction, torch.tensor([label], device=DEVICE))
+        prediction = model(local_batch).squeeze(1)
+   
+        loss = loss_function(prediction, local_labels)
         loss.backward()
         optimizer.step()
         total_loss += loss.item()
-    losses.append(total_loss/num_tweets)
+    losses.append(total_loss/len(train_dataset))
 
 # Print losses of all epochs
 print(losses)
 
-
 ############################### S A V I N G     B E G I N ###############################
 
-
 save_model(model, f"{args.v}", f"{args.d}")
-
 
 ############################### B O W    G R U   E X A M P L E ###############################
 """
@@ -271,4 +303,3 @@ Each word is encoded as one-hot vector. Since "this" is in vocabulary is at posi
 
 bow_gru_matrix_2  = [[0 0 0 1 0 0] [0 0 1 0 0 0] [0 1 0 0 0 0] [0 0 0 0 0 0] .... [0 0 0 0 0 0]] - left for practice!
 """
-
