@@ -222,6 +222,15 @@ watch -n 0.1 bpeek
 
 
 ## Troubleshooting
+#### Accessing Leonhard Cluster after cyber attack
+Full guide available [here](https://scicomp.ethz.ch/wiki/Reopening_of_Euler_and_Leonhard_(May_2020))
+1. Change AAI (LDAP) password. Changing VPN and Active Directory does not have any effect
+2. Create a strong new ssh key, connect to VPN and copy the public key to Leonhard 
+```
+ssh-keygen -t ed25519
+ssh-copy-id -i $HOME/.ssh/id_ed25519.pub username@login.leonhard.ethz.ch
+```
+
 #### ModuleNotFoundError: No module named 'algorithms'
 This can happen if you are not using a smart IDE that figures out things by itself. 
 The problem is that if you are trying to run a python file that is stored in a subfolder of subfolder... it is unable to load these modules.
