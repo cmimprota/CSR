@@ -50,7 +50,7 @@ class TweetsDataset(Dataset):
     def loadVocab(self, vocab_path):
         global VOCAB_SIZE
         with open(vocab_path, "rb") as f:
-            self.vocab = pickle.load(f)
+            self.vocab = dict(pickle.load(f))
         VOCAB_SIZE = len(self.vocab)
 
     def load(self, label_data_path, lowercase = True):
