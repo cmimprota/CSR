@@ -90,7 +90,7 @@ if __name__ == '__main__':
     vocab_path = 'vocabularies/full/test-and-train-full.pkl'
 
     train_dataset = TweetsDataset(label_data_path, vocab_path)
-    train_loader = DataLoader(train_dataset, batch_size=64, num_workers=2, drop_last=False)
+    train_loader = DataLoader(train_dataset, batch_size=64, num_workers=0, drop_last=False)
 
 ############################### I N I T I A L I Z A T I O N     B E G I N ###############################
 
