@@ -80,7 +80,7 @@ class TweetsDataset(Dataset):
         return X
 
     def word2Index(self, character):
-        return self.vocab.keys.index(character)
+        return self.vocab.keys().index(character)
 
 if __name__ == '__main__':
     label_data_path = 'CIL_clean/dataset_clean.csv'
