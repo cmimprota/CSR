@@ -52,7 +52,8 @@ class TweetsDataset(Dataset):
         with open(vocab_path, "rb") as f:
             ws = pickle.load(f)
             for w in ws:
-                self.vocab.append(''.join(w))
+                self.vocab.append(''.join(str(w)))
+        VOCAB_SIZE = len(self.vocab)
 
     def load(self, label_data_path, lowercase = True):
         self.label = []
