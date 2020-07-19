@@ -230,6 +230,19 @@ Full guide available [here](https://scicomp.ethz.ch/wiki/Reopening_of_Euler_and_
 ssh-keygen -t ed25519
 ssh-copy-id -i $HOME/.ssh/id_ed25519.pub username@login.leonhard.ethz.ch
 ```
+In case you have problems with git Authentication after password change, follow these steps for Windows:
+1. Click Start
+2. Type: Credential Manager (On Windows 10, this is under "Start->Settings". Then search for "Credential Manager")
+3. See the Windows Credentials Manager shortcut and double-click it to open the application.
+4. Once the app is open, click on the Windows Credentials tab.
+5. Locate the credentials that you want to remove/update, they will start with "git:" and might begin with "ada:"
+6. Click on the credential entry, it will open a details view of the entry.
+7. Click Edit and type your new 
+
+In case you have problems with PyCharm after password change, follow these steps:
+1. Locate and delete .IntelliJIdea14\config\options\security.xml
+2. Open PyCharm and select File -> Invalidate Caches/Restart from the main menu.
+
 
 #### ModuleNotFoundError: No module named 'algorithms'
 This can happen if you are not using a smart IDE that figures out things by itself. 
