@@ -86,9 +86,8 @@ class TweetsDataset(Dataset):
         return self.vocab.index(character)
 
 if __name__ == '__main__':
-    
-    label_data_path = os.path.join(constants.DATASETS_PATH, "dataset_clean.csv")
-    vocab_path = os.path.join(constants.VOCABULARIES_FULL_PATH, "test-and-train-full.pkl")
+    label_data_path = 'CIL_clean/dataset_clean.csv'
+    vocab_path = 'vocabularies/full/test-and-train-full.pkl'
 
     train_dataset = TweetsDataset(label_data_path, vocab_path)
     train_loader = DataLoader(train_dataset, batch_size=64, num_workers=0, drop_last=False)
