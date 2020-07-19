@@ -49,11 +49,8 @@ class TweetsDataset(Dataset):
 
     def loadVocab(self, vocab_path):
         global VOCAB_SIZE
-        self.vocab = []
         with open(vocab_path, "rb") as f:
-            ws = pickle.load(f)
-            for w in ws:
-                self.vocab.append(''.join(str(w)))
+            self.vocab = pickle.load(f)
         VOCAB_SIZE = len(self.vocab)
 
     def load(self, label_data_path, lowercase = True):
@@ -83,7 +80,7 @@ class TweetsDataset(Dataset):
         return X
 
     def word2Index(self, character):
-        return self.vocab.index(character)
+        return self.vocab.keys.index(character)
 
 if __name__ == '__main__':
     label_data_path = 'CIL_clean/dataset_clean.csv'
