@@ -83,22 +83,22 @@ class TweetsDataset(Dataset):
         return list(self.vocab.keys()).index(character)
 
 if __name__ == '__main__':
-    label_data_path = 'CIL_clean/dataset_clean.csv'
-    vocab_path = 'vocabularies/cut/cut-vocab-test-and-train-full-1000-most-frequent.pkl'
+    label_data_path = f"{args.d}" #'CIL_clean/dataset_clean.csv'
+    vocab_path = f"{args.v}" #'vocabularies/cut/cut-vocab-test-and-train-full-1000-most-frequent.pkl'
 
     train_dataset = TweetsDataset(label_data_path, vocab_path)
     train_loader = DataLoader(train_dataset, batch_size=64, num_workers=0, drop_last=False)
 
 ############################### I N I T I A L I Z A T I O N     B E G I N ###############################
 
-'''
+
 torch.manual_seed(1)
 
 parser = ArgumentParser()
-parser.add_argument("-d", choices=["train-short", "train-full"], help="dataset - choose train-short or train-full")
+parser.add_argument("-d", type=str, help="dataset - choose train-short or train-full")
 parser.add_argument("-v", type=str, help="vocabulary - filename in the folder cut")
 args = parser.parse_args()
-
+'''
 ROOT_DIR = os.path.dirname(os.path.abspath(__file__))
 DATASETS_PATH = os.path.join(ROOT_DIR, "twitter-datasets")
 VOCABULARIES_FULL_PATH = '/Users/costanzamariaimprota/ETH/Computational Intelligence Lab/cil-spring20-project/vocabularies/full'
