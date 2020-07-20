@@ -84,7 +84,7 @@ class TweetsDataset(Dataset):
 
 if __name__ == '__main__':
     label_data_path = 'CIL_clean/dataset_clean.csv'
-    vocab_path = 'vocabularies/full/test-and-train-full.pkl'
+    vocab_path = 'vocabularies/cut/cut-vocab-test-and-train-full-1000-most-frequent.pkl'
 
     train_dataset = TweetsDataset(label_data_path, vocab_path)
     train_loader = DataLoader(train_dataset, batch_size=64, num_workers=0, drop_last=False)
