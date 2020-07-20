@@ -245,7 +245,7 @@ losses = []
 
 for epoch in range(5):
     
-    print(F"Running epoch {epoch}\n")
+    #print(F"Running epoch {epoch}\n")
     
     # Accumulates the losses of the current epoch
     total_loss = 0
