@@ -90,8 +90,8 @@ if __name__ == '__main__':
     parser.add_argument("-v", type=str, help="vocabulary - filename in the folder cut")
     args = parser.parse_args()
 
-    label_data_path = f"{args.d}" #'CIL_clean/dataset_clean.csv'
-    vocab_path = f"{args.v}" #'vocabularies/cut/cut-vocab-test-and-train-full-1000-most-frequent.pkl'
+    label_data_path = str(args.d) #'CIL_clean/dataset_clean.csv'
+    vocab_path = str(args.v) #'vocabularies/cut/cut-vocab-test-and-train-full-1000-most-frequent.pkl'
 
     train_dataset = TweetsDataset(label_data_path, vocab_path)
     train_loader = DataLoader(train_dataset, batch_size=64, num_workers=0, drop_last=False)
@@ -267,7 +267,7 @@ if __name__ == '__main__':
 
     ############################### S A V I N G     B E G I N ###############################
 
-    save_model(model, f"{args.v}", f"{args.d}")
+    save_model(model, str(args.v), str(args.d))
 
     ############################### B O W    G R U   E X A M P L E ###############################
     """
