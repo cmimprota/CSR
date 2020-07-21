@@ -50,7 +50,7 @@ elif args.d == "test-and-train-full":
 
 text = ""
 for file in files_to_parse:
-    with open(os.path.join(constants.DATASETS_PATH, file), "r") as f:
+    with open(os.path.join(constants.DATASETS_PATH, file), "r", encoding='utf8') as f:
         text += f.read()
 
 for meaning in emoji_dictionary.keys():
@@ -60,5 +60,5 @@ for meaning in emoji_dictionary.keys():
         text = text.replace(emoji, ' {} '.format(meaning))
         text = text.replace(spaced_emoji, ' {} '.format(meaning))
 
-with open(os.path.join(constants.DATASETS_PATH, f"emoji-{args.d}.txt"), "w") as outputfile:
+with open(os.path.join(constants.DATASETS_PATH, f"emoji-{args.d}.txt"), "w", encoding='utf8') as outputfile:
     outputfile.write(text)
