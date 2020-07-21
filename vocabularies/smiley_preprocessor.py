@@ -48,9 +48,10 @@ elif args.d == "test-and-train-full":
     files_to_parse.append("train_neg_full.txt")
     files_to_parse.append("test_data.txt")
 
+text = ""
 for file in files_to_parse:
     with open(os.path.join(constants.DATASETS_PATH, file), "r") as f:
-        text = f.read()
+        text += f.read()
 
 for meaning in emoji_dictionary.keys():
     for (i, emoji) in enumerate(emoji_dictionary[meaning]):
