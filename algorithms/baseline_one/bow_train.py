@@ -114,7 +114,7 @@ optimizer = optim.SGD(model.parameters(), lr=0.1)
 losses = []
 
 # TODO: Consider to parametrize number of epochs as well
-for epoch in range(20):
+for epoch in range(5):
     # Good practice is to log the progress somehow (might be useful for running on a cluster)
     print(F"Running epoch {epoch}\n")
 

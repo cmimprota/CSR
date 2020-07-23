@@ -1,0 +1,5 @@
+BoWClassifier(
+  (fc1): Linear(in_features=7604, out_features=100, bias=True)
+  (fc2): Linear(in_features=100, out_features=50, bias=True)
+  (fc3): Linear(in_features=50, out_features=2, bias=True)
+)
