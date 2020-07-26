@@ -1,4 +1,6 @@
 from argparse import ArgumentParser
+from collections import OrderedDict
+
 import constants
 import os
 
@@ -26,39 +28,30 @@ emoji_dictionary = {
 }
 
 parser = ArgumentParser()
-parser.add_argument("-d", choices=["test", "train-short", "train-full", "test-and-train-short", "test-and-train-full"])
+parser.add_argument("-d", choices=["test_data.txt", "train_pos_full.txt", "train_neg_full.txt", "train_pos.txt", "train_neg.txt"])
+parser.add_argument("-s", type=str)
 args = parser.parse_args()
 
-files_to_parse = []
-
-if args.d == "test":
-    files_to_parse.append("test_data.txt")
-elif args.d == "train-short":
-    files_to_parse.append("train_pos.txt")
-    files_to_parse.append("train_neg.txt")
-elif args.d == "train-full":
-    files_to_parse.append("train_pos_full.txt")
-    files_to_parse.append("train_neg_full.txt")
-elif args.d == "test-and-train-short":
-    files_to_parse.append("train_pos.txt")
-    files_to_parse.append("train_neg.txt")
-    files_to_parse.append("test_data.txt")
-elif args.d == "test-and-train-full":
-    files_to_parse.append("train_pos_full.txt")
-    files_to_parse.append("train_neg_full.txt")
-    files_to_parse.append("test_data.txt")
 
 text = ""
-for file in files_to_parse:
-    with open(os.path.join(constants.DATASETS_PATH, file), "r", encoding='utf8') as f:
-        text += f.read()
+with open(os.path.join(constants.DATASETS_PATH, str(args.d)), "r", encoding='utf8') as f:
+    text = f.read()
 
-for meaning in emoji_dictionary.keys():
-    for (i, emoji) in enumerate(emoji_dictionary[meaning]):
-        emoji = emoji.lower()
-        spaced_emoji = ' '.join(list(emoji))
-        text = text.replace(emoji, ' {} '.format(meaning))
-        text = text.replace(spaced_emoji, ' {} '.format(meaning))
+if args.s == "smile":
+    for meaning in emoji_dictionary.keys():
+        for (i, emoji) in enumerate(emoji_dictionary[meaning]):
+            emoji = emoji.lower()
+            spaced_emoji = ' '.join(list(emoji))
+            text = text.replace(emoji, ' {} '.format(meaning))
+            text = text.replace(spaced_emoji, ' {} '.format(meaning))
 
-with open(os.path.join(constants.DATASETS_PATH, f"emoji-{args.d}.txt"), "w", encoding='utf8') as outputfile:
-    outputfile.write(text)
+
+# Remove duplicates
+text = "\n".join(list(OrderedDict.fromkeys(text.split("\n"))))
+
+if args.s == "smile":
+    with open(os.path.join(constants.DATASETS_PATH, f"nodup-smileys-{args.d}"), "w", encoding='utf8') as outputfile:
+        outputfile.write(text)
+else:
+    with open(os.path.join(constants.DATASETS_PATH, f"nodup-{args.d}"), "w", encoding='utf8') as outputfile:
+        outputfile.write(text)

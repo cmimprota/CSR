@@ -50,7 +50,7 @@ class TweetsDataset(Dataset):
     def loadVocab(self, vocab_path):
         global VOCAB_SIZE
         with open(vocab_path, "rb") as f:
-            self.vocab = dict(pickle.load(f))
+            self.vocab = pickle.load(f)
         VOCAB_SIZE = len(self.vocab)
 
     def load(self, label_data_path, lowercase = True):
@@ -75,12 +75,12 @@ class TweetsDataset(Dataset):
         X = torch.zeros(len(self.vocab), self.l0)
         sequence = self.data[idx]
         for index_char, char in enumerate(sequence.split()):
-            if char in self.vocab.keys():
+            if char in self.vocab:
                 X[self.word2Index(char)][index_char] = 1.0
         return X
 
     def word2Index(self, character):
-        return list(self.vocab.keys()).index(character)
+        return self.vocab.index(character)
 
 if __name__ == '__main__':
     torch.manual_seed(1)
