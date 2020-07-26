@@ -49,8 +49,15 @@ class TweetsDataset(Dataset):
 
     def loadVocab(self, vocab_path):
         global VOCAB_SIZE
+        self.vocab = []
         with open(vocab_path, "rb") as f:
-            self.vocab = pickle.load(f)
+            # Problems with using full vs cut vocabularies:
+            # Cut vocabularies do not contain count of the words - it is just a list!
+            # Full vocabularies are tuples of (word, count) - it is a dictionary
+            ws = pickle.load(f)
+            for w in ws:
+                self.vocab.append(''.join(w))
+            # self.vocab = dict(pickle.load(f)) - use for full vocabulary
         VOCAB_SIZE = len(self.vocab)
 
     def load(self, label_data_path, lowercase = True):
@@ -76,11 +83,13 @@ class TweetsDataset(Dataset):
         sequence = self.data[idx]
         for index_char, char in enumerate(sequence.split()):
             if char in self.vocab:
+            # if char in self.vocab.keys(): - use for full vocabulary
                 X[self.word2Index(char)][index_char] = 1.0
         return X
 
     def word2Index(self, character):
         return self.vocab.index(character)
+        # return list(self.vocab.keys()).index(character) - use for full vocabulary
 
 if __name__ == '__main__':
     torch.manual_seed(1)
