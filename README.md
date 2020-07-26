@@ -122,14 +122,11 @@ chmod 600 ~/.ssh/authorized_keys
 
 We are using a cluster, meaning that there is python already installed that we are supposed to simply load as module.
 However, python interpreter is looking for the modules (libraries) under the root location that we do not have access to.
-We cannot sudo and simply install libraries that we want. In order to be able to do that we will set the PYTHONPATH to a local folder that we will create.
-This variable tells the python interpreter where to look for the modules (libraries).
+We cannot sudo and simply install libraries that we want. This is why later we will install virtual environment (venv)
+In order to be able to reference our own scripts using import, we will add PYTHONPATH the root of the project location.
 
 ```
-mkdir $HOME/python
-cd $HOME/python
-mkdir -p lib64/python3.7/site-packages
-echo "export PYTHONPATH=$HOME/cil-spring20-project:$HOME/python/lib64/python3.7/site-packages" >> ~/.bash_profile
+echo "export PYTHONPATH=$HOME/cil-spring20-project" >> ~/.bash_profile
 source ~/.bash_profile
 module load gcc/6.3.0 python_gpu/3.7.4
 ```
@@ -152,7 +149,7 @@ Typically all the modules (libraries) that we need should be in requirements.txt
 ```shell script
 cd ~/cil-spring20-project/
 pip3 install --user virtualenv
-virtualenv --system-site-packages -p python3 venv
+virtualenv -p python3 venv
 source ./venv/bin/activate
 pip install --upgrade pip
 pip install -r requirements.txt
