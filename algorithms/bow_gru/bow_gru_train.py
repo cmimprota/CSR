@@ -68,13 +68,13 @@ class TweetsDataset(Dataset):
             # num_samples = sum(1 for row in rdr)
             for index, row in enumerate(rdr):
                 if index > 0:
-                    self.label.append(int(row[1]))
+                    self.label.append(torch.tensor([int(row[1])], device=DEVICE))
                     txt = ' '.join(row[0:])
                     if lowercase:
                         txt = txt.lower()
                     self.data.append(txt)
 
-        self.y = torch.LongTensor(self.label)
+        self.y = torch.LongTensor(self.label, device=DEVICE)
 
 
     def oneHotEncode(self, idx):
@@ -93,6 +93,12 @@ class TweetsDataset(Dataset):
 
 if __name__ == '__main__':
     torch.manual_seed(1)
+
+    # Same device needs to be used when instantiating tensors as for model. Exception thrown otherwise
+    DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+
+    # This is the maximum number of words that we will take into consideration from a single tweet
+    MAX_NO_OF_WORDS = 50
 
     parser = ArgumentParser()
     parser.add_argument("-d", type=str, help="dataset - choose train-short or train-full")
@@ -127,14 +133,8 @@ if __name__ == '__main__':
     WORD_TO_INDEX = {}
     for i in range(len(vocab)):
         WORD_TO_INDEX[vocab[i]] = i
-    '''
-    # Same device needs to be used when instantiating tensors as for model. Exception thrown otherwise
-    DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-
-    # This is the maximum number of words that we will take into consideration from a single tweet
-    MAX_NO_OF_WORDS = 50
-
-    '''
+    
+    
     def encode_tweets_as_bow_gru_matrices(file, label):
         """
         From dataset in the file loads all the tweets and encodes each of them as bow_gru_matrix
@@ -261,7 +261,7 @@ if __name__ == '__main__':
         total_loss = 0
 
         for local_batch, local_labels in enumerate(train_loader):
-            local_batch, local_labels = local_batch.to(DEVICE), local_labels.to(DEVICE)
+            # local_batch, local_labels = local_batch.to(DEVICE), local_labels.to(DEVICE)
             model.zero_grad()
             prediction = model(local_batch).squeeze(1)
 
