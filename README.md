@@ -176,8 +176,7 @@ cd ./cil-spring20-project/ && git pull && cd ~
 - Load necessary module 
 
 ```
-module load gcc/6.3.0 python_gpu/3.7.4
-module load hdf5/1.10.1
+module load python_gpu/3.7.4
 ```
 
 - Activate virtualenv
