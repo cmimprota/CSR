@@ -134,3 +134,4 @@ if __name__ == '__main__':
     # Print losses of all epochs
     print(losses)
 
+    save_model(model, f"{args.v}", f"{args.d}")
