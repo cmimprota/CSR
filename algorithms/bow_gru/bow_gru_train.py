@@ -68,7 +68,7 @@ class TweetsDataset(Dataset):
             # num_samples = sum(1 for row in rdr)
             for index, row in enumerate(rdr):
                 if index > 0:
-                    self.label.append(torch.tensor([int(row[1])], device=DEVICE))
+                    self.label.append(int(row[1]))
                     txt = ' '.join(row[0:])
                     if lowercase:
                         txt = txt.lower()
@@ -79,7 +79,7 @@ class TweetsDataset(Dataset):
 
     def oneHotEncode(self, idx):
         # X = (batch, vocab_length, tweet_length_of_words)
-        X = torch.zeros(len(self.vocab), self.l0)
+        X = torch.zeros(len(self.vocab), self.l0, device=DEVICE)
         sequence = self.data[idx]
         for index_char, char in enumerate(sequence.split()):
             if char in self.vocab:
@@ -265,7 +265,7 @@ if __name__ == '__main__':
             model.zero_grad()
             prediction = model(local_batch).squeeze(1)
 
-            loss = loss_function(prediction, local_labels)
+            loss = loss_function(prediction, torch.tensor(local_labels, device=DEVICE))
             loss.backward()
             optimizer.step()
             total_loss += loss.item()
