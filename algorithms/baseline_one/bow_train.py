@@ -24,7 +24,8 @@ from algorithms.helpers import save_model
 torch.manual_seed(1)
 
 parser = ArgumentParser()
-parser.add_argument("-d", choices=["train-short", "train-full"], help="dataset - choose train-short or train-full")
+parser.add_argument("-d", choices=["train-short", "train-full", "nodup-test-and-train-full"],
+                    help="dataset - choose train-short or train-full for not preprocessed or nodup-test-and-train-full")
 parser.add_argument("-v", type=str, help="vocabulary - filename in the folder cut")
 args = parser.parse_args()
 
@@ -62,7 +63,6 @@ def encode_tweets_as_bow_vectors(file, label):
     # BOW encodes whole sentences(tweets) as bow vector that will be used as input vector. Check the bottom for example
     # We need to use whole bow_vector as input layer and therefore it has same length that is equal to vocabulary size
     for tweet in tweets:
-        # TODO do the same pre-processing as in build-vocab-full (call it from separate script.py)
         words = tweet.split()
         occurrences_of_words = list(Counter(words).items())
         bow_vector = torch.zeros(len(vocab), device=DEVICE)
@@ -86,9 +86,14 @@ def encode_tweets_as_bow_vectors(file, label):
 if args.d == "train-short":
     parse_positive = "train_pos.txt"
     parse_negative = "train_neg.txt"
+# Use the same pre-processing as in build-vocab-full (use created dataset and not function)
+elif args.d == "nodup-test-and-train-full":
+    parse_positive = "nodup-smileys-preprocess-train_pos_full.txt"
+    parse_negative = "nodup-smileys-preprocess-train_neg_full.txt"
 else:
     parse_positive = "train_pos_full.txt"
     parse_negative = "train_neg_full.txt"
+
 
 # Labels are chosen as 0 and 1 and correspond to the position of its probability in output vector (look loss_function)
 all_tweets_as_bow_vectors = []

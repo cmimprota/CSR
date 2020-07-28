@@ -26,7 +26,7 @@ MAX_NO_OF_WORDS = 50
 
 
 class TweetsDataset(Dataset):
-    def __init__(self, label_data_path, vocab_path, l0=1000):
+    def __init__(self, label_data_path, vocab_path, l0=500):
         """
         Arguments:
             label_data_path: The path of label and data file in csv.
@@ -113,7 +113,7 @@ if __name__ == '__main__':
 
     losses = []
 
-    for epoch in range(3):
+    for epoch in range(1):
 
         print(F"Running epoch {epoch}\n")
 

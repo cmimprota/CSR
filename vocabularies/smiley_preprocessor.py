@@ -1,8 +1,40 @@
 from argparse import ArgumentParser
 from collections import OrderedDict
-
 import constants
 import os
+import re
+import nltk
+from nltk.corpus import stopwords
+import warnings
+
+
+parser = ArgumentParser()
+parser.add_argument("-d", choices=["test_data.txt", "train_pos_full.txt", "train_neg_full.txt", "train_pos.txt",
+                                   "train_neg.txt"])
+parser.add_argument("-s", type=str)
+parser.add_argument("-n", type=str)
+parser.add_argument("-p", type=str)
+args = parser.parse_args()
+
+
+output_filename = ""
+text = ""
+with open(os.path.join(constants.DATASETS_PATH, str(args.d)), "r", encoding='utf8') as f:
+    text = f.read()
+
+
+############################### D U P L I C A T E S     B E G I N ###############################
+
+
+if args.n == "nodup":
+    output_filename += "nodup-"
+    text = "\n".join(list(OrderedDict.fromkeys(text.split("\n"))))
+
+
+############################### D U P L I C A T E S    E N D ###############################
+
+
+############################### S M I L E Y     B E G I N ###############################
 
 
 emoji_dictionary = {
@@ -27,17 +59,8 @@ emoji_dictionary = {
     'devilish': ['>:‑)', '}:‑)', '}:)', '3:‑)', '3:)', '>;)', '>:3', ';3'],
 }
 
-parser = ArgumentParser()
-parser.add_argument("-d", choices=["test_data.txt", "train_pos_full.txt", "train_neg_full.txt", "train_pos.txt", "train_neg.txt"])
-parser.add_argument("-s", type=str)
-args = parser.parse_args()
-
-
-text = ""
-with open(os.path.join(constants.DATASETS_PATH, str(args.d)), "r", encoding='utf8') as f:
-    text = f.read()
-
-if args.s == "smile":
+if args.s == "smileys":
+    output_filename += "smileys-"
     for meaning in emoji_dictionary.keys():
         for (i, emoji) in enumerate(emoji_dictionary[meaning]):
             emoji = emoji.lower()
@@ -46,12 +69,38 @@ if args.s == "smile":
             text = text.replace(spaced_emoji, ' {} '.format(meaning))
 
 
-# Remove duplicates
-text = "\n".join(list(OrderedDict.fromkeys(text.split("\n"))))
+############################### S M I L E Y     E N D ###############################
 
-if args.s == "smile":
-    with open(os.path.join(constants.DATASETS_PATH, f"nodup-smileys-{args.d}"), "w", encoding='utf8') as outputfile:
-        outputfile.write(text)
-else:
-    with open(os.path.join(constants.DATASETS_PATH, f"nodup-{args.d}"), "w", encoding='utf8') as outputfile:
-        outputfile.write(text)
+
+############################### P R E P R O C E S S     B E G I N ###############################
+
+
+if args.p == "preprocess":
+    output_filename += "preprocess-"
+    warnings.filterwarnings("ignore", category=DeprecationWarning)
+
+    # Incorrect stopwords
+    incorrect_stopwords = ['im', "shes", 'whats', 'thats', "dont", "arent", "couldnt", "didnt", "doesnt", "hadnt", "hasnt",
+                           "havent", "isnt", "mightnt", "mustnt", "neednt", "shant", "shouldnt", "wasnt", "werent", "wont",
+                           "wouldnt", 'cannot']
+
+    htmltag = re.compile('<.*?>')
+    final_text = ""
+    cachedStopWords = stopwords.words("english")
+    for line in text.splitlines():
+        line = re.sub(htmltag, ' ', line)  # remove <user><url>
+        line = re.sub('[^a-z A-Z0-9_#]', ' ', line)  # Keep hashtag, remove punctuation
+        line = re.sub(' \d+', ' ', line)  # Remove digits
+        # text = '\n'.join([line for line in text.splitlines()])
+        line = ' '.join([w for w in line.split() if w not in cachedStopWords and w not in incorrect_stopwords])
+        final_text += line + '\n'
+
+    #text = ' '.join([w for w in text.split() if w not in cachedStopWords and w not in incorrect_stopwords])
+
+
+############################### P R E P R O C E S S     E N D ###############################
+
+
+if args.s == "smileys":
+    with open(os.path.join(constants.DATASETS_PATH, f"{output_filename}{args.d}"), "w", encoding='utf8') as outputfile:
+        outputfile.write(final_text)

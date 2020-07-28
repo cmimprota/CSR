@@ -10,7 +10,8 @@ import constants
 import os
 
 parser = ArgumentParser()
-parser.add_argument("-d", choices=["test", "train-short", "train-full", "test-and-train-short", "test-and-train-full"])
+parser.add_argument("-d", choices=["test", "train-short", "train-full", "test-and-train-short", "test-and-train-full",
+                                   "nodup-test-and-train-full"])
 args = parser.parse_args()
 
 files_to_parse = []
@@ -31,9 +32,12 @@ elif args.d == "test-and-train-full":
     files_to_parse.append("train_pos_full.txt")
     files_to_parse.append("train_neg_full.txt")
     files_to_parse.append("test_data.txt")
+# Instead of data pre-processing script we are using created datasets.
+elif args.d == "nodup-test-and-train-full":
+    files_to_parse.append("nodup-smileys-preprocess-train_pos_full.txt")
+    files_to_parse.append("nodup-smileys-preprocess-train_neg_full.txt")
+    files_to_parse.append("nodup-smileys-preprocess-test_data.txt")
 
-
-# TODO this part should be replaced with data pre-processing. We should get nice and clean vocabulary before cutting it
 words = []
 for file in files_to_parse:
     with open(os.path.join(constants.DATASETS_PATH, file), "r") as f:
