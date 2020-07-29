@@ -13,6 +13,7 @@ from algorithms.helpers import load_model, save_submission, load_vocabulary
 
 parser = ArgumentParser()
 parser.add_argument("-m", type=str, help="model - foldername from results folder for model that you want to load")
+parser.add_argument("-d", type=str, help="put nodup-test-and-train-full if using preprocessed")
 args = parser.parse_args()
 
 # Reads the configuration_log.csv file to find the exact vocabulary that was used for the selected model
@@ -24,14 +25,18 @@ for i in range(len(vocab)):
 
 
 # No need to add this as argument of script as we have a single test_data file
-with open(os.path.join(constants.DATASETS_PATH, "test_data.txt"), "r") as f:
-    tweets = f.readlines()
+if args.d == "nodup-test-and-train-full":
+    with open(os.path.join(constants.DATASETS_PATH, "test_data.txt"), "r") as f:
+        tweets = f.readlines()
+else:
+    # Use the same pre-processing as in build-vocab-full (use created dataset and not function)
+    with open(os.path.join(constants.DATASETS_PATH, "test_data.txt"), "r") as f:
+        tweets = f.readlines()
 
 # Read encode_tweets_as_bow_vectors in bow_train.py to understand how tweets are encoded
 # Exactly the same approach is used here without labels as test do not have it
 all_tweets_as_bow_vectors = []
 for tweet in tweets:
-    # TODO do the same pre-processing as in build-vocab-full (call it from separate script.py)
     words = tweet.split()
     occurrences_of_words = list(Counter(words).items())
     bow_vector = torch.zeros(len(vocab))

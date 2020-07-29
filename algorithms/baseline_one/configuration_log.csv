@@ -4,3 +4,5 @@ steva,23.04_14.39.25,cut-vocab-test-frequency-20.pkl,train-short
 mstevan,09.05_03.02.01,cut-vocab-test-frequency-20.pkl,train-short
 mstevan,10.05_14.38.01,cut-vocab-test-frequency-20.pkl,train-full
 steva,16.07_22.50.10,cut-vocab-test-and-train-short-frequency-20.pkl,train-short
+mstevan,28.07_01.26.27,cut-vocab-test-and-train-full-500-most-frequent.pkl,None
+mstevan,28.07_05.40.18,cut-vocab-test-and-train-full-1000-most-frequent.pkl,None

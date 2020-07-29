@@ -10,7 +10,8 @@ import constants
 import os
 
 parser = ArgumentParser()
-parser.add_argument("-v", choices=["test", "train-short", "train-full", "test-and-train-short", "test-and-train-full"])
+parser.add_argument("-v", choices=["test", "train-short", "train-full", "test-and-train-short", "test-and-train-full",
+                                   "nodup-test-and-train-full"])
 parser.add_argument("-n", type=int)
 args = parser.parse_args()
 
