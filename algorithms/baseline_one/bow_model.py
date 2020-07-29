@@ -10,7 +10,7 @@ class BoWClassifier(nn.Module):
         super(BoWClassifier, self).__init__()
         # We have 2 layers only and no hidden layers
         # 1 input layer that has as many nodes as length of vocabulary and 1 output with 2 nodes
-        self.fc1 = nn.Linear(vocab_size, 50)
+        self.fc1 = nn.Linear(vocab_size, 100)
         self.fc2 = nn.Linear(100, 50)
         self.fc3 = nn.Linear(50, num_labels)
 
