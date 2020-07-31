@@ -10,7 +10,6 @@ a two stride convolutional layer is applied. In order to match the dimensions, w
 kernel size and stride equal to one and two respectively to the identity shortcut which we call downsampling layer. Batch
 normalization (BN) is implemented right after each convolution and before Relu activation. We use character-level sequence 
 representation with residual block (CSR-Res) as the character embedding model, performing the same as word embedding model like BERT.
-The detailed CSR-Res is shown below.
 
 
 # Classifier
