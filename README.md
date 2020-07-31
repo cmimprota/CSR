@@ -1,4 +1,11 @@
-# cil-spring20-project
+Code for CIL Task 2 - group CGXS
+===
+
+This directory contains the code used for the model proposed by the group CGXS, as well as several baseline implementations, for Task 2 (Text sentiment classification) of the course Computational Intelligence Lab (CIL). [Course webpage](http://da.inf.ethz.ch/teaching/2020/CIL/)  [Kaggle competition](https://www.kaggle.com/c/cil-text-classification-2020)
+
+The model, baselines, and experiments are discussed in detail in the report report.pdf.
+
+Information on the model implementation and some of the baselines are contained in the respective README's within each subdirectory.
 
 ETHZ CIL Text Classification 2020
 
@@ -14,8 +21,6 @@ We should perform stemming - **If somebody knows something external so that we c
 
 *  More About it [here](https://www.geeksforgeeks.org/python-stemming-words-with-nltk/)
 *  Check the guide [here](https://www.datacamp.com/community/tutorials/stemming-lemmatization-python)
-
-Research papers to read can be found [here](https://docs.google.com/document/d/1-6GRa9-q5DmtTEyYLvCvwubjkC2Hquf_ndlONv_-5yI/edit?usp=sharing)
 
 ## SETUP PROJECT
 
