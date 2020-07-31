@@ -1,4 +1,4 @@
-This directory contains the notebooks developped by Guillaume:
+This directory contains:
 - the meanembedding and SIF baselines
 - WordCNN: a solution based on RNN+CNN (in that order), using the GloVe *pretrained* embedding as input
 - CharResCNN_gw: same as Xiaochen's CharResCNN, just rewritten in a way that I find cleaner
