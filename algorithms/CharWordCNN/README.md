@@ -1,5 +1,5 @@
 This directory contains:
-- the meanembedding and SIF baselines
+- the meanembedding and SIF baselines (written in jupyter notebook)
 - WordCNN: a solution based on RNN+CNN (in that order), using the GloVe *pretrained* embedding as input
 - CharResCNN_gw: same as Xiaochen's CharResCNN, just rewritten in a way that I find cleaner
 - Char+WordCNN: an attempt to get a better performance by combining WordCNN and Char(Res)CNN
